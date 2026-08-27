@@ -824,64 +824,74 @@
     </div>
 
     <div class="row-list reveal">
-      <a class="work-row" data-cat="software" href="https://github.com/DakyRetzu/ai-cad-analyzer" target="_blank" rel="noopener">
+      <a class="work-row" data-cat="software" href="https://ai-cad-analyzer.vercel.app/" target="_blank" rel="noopener">
         <span class="idx mono">01</span>
         <div class="main">
           <h3>AI CAD Analyzer</h3>
           <p>Real-time WebGL platform for STL analysis – volume/mass math, unit economics, automated slicing diagnostics.</p>
           <div class="tags"><span>Next.js 14</span><span>Three.js</span><span>TypeScript</span></div>
         </div>
-        <span class="go">Repo <span class="arrow">↗</span></span>
+        <span class="go">Live <span class="arrow">↗</span></span>
       </a>
 
-      <a class="work-row" data-cat="software" href="https://github.com/DakyRetzu/spatial-3d-collaborative-canvas" target="_blank" rel="noopener">
+      <a class="work-row" data-cat="software" href="https://spatial-3d-collaborative-canvas.vercel.app/" target="_blank" rel="noopener">
         <span class="idx mono">02</span>
         <div class="main">
           <h3>Spatial 3D Canvas</h3>
           <p>Real-time collaborative 3D scene editor – HDRI lighting, PBR materials, sub-mesh selection, scoped undo.</p>
           <div class="tags"><span>React Three Fiber</span><span>Yjs</span><span>Three.js</span></div>
         </div>
-        <span class="go">Repo <span class="arrow">↗</span></span>
+        <span class="go">Live <span class="arrow">↗</span></span>
       </a>
 
-      <a class="work-row" data-cat="web" href="https://github.com/DakyRetzu/danilo-watch" target="_blank" rel="noopener">
+      <a class="work-row" data-cat="web" href="https://danilo-watch-daky-workspace.vercel.app/" target="_blank" rel="noopener">
         <span class="idx mono">03</span>
         <div class="main">
           <h3>Danilo – Watch Brand</h3>
           <p>Scroll-scrubbed disassembly animation for a luxury watch brand. Single page, deployed on Vercel.</p>
           <div class="tags"><span>Vanilla JS</span><span>Scroll FX</span></div>
         </div>
-        <span class="go">Repo <span class="arrow">↗</span></span>
+        <span class="go">Live <span class="arrow">↗</span></span>
       </a>
 
-      <a class="work-row" data-cat="web" href="https://github.com/DakyRetzu/raw-vtwin" target="_blank" rel="noopener">
+      <a class="work-row" data-cat="web" href="https://raw-vtwin.vercel.app/" target="_blank" rel="noopener">
         <span class="idx mono">04</span>
         <div class="main">
           <h3>Raw V-Twin</h3>
           <p>Scroll-sequence landing page for a motorcycle build – Canvas frame-scrubbing driven by GSAP.</p>
           <div class="tags"><span>Next.js</span><span>Canvas</span><span>GSAP</span></div>
         </div>
-        <span class="go">Repo <span class="arrow">↗</span></span>
+        <span class="go">Live <span class="arrow">↗</span></span>
       </a>
 
-      <a class="work-row" data-cat="web" href="https://github.com/DakyRetzu/varenne-leather" target="_blank" rel="noopener">
+      <a class="work-row" data-cat="web" href="https://varenne-leather.vercel.app/" target="_blank" rel="noopener">
         <span class="idx mono">05</span>
         <div class="main">
           <h3>Varenne – Maison de Cuir</h3>
           <p>Editorial landing page for a bespoke leather goods house – built for restraint over flash.</p>
           <div class="tags"><span>Next.js</span><span>Editorial UI</span></div>
         </div>
-        <span class="go">Repo <span class="arrow">↗</span></span>
+        <span class="go">Live <span class="arrow">↗</span></span>
       </a>
 
-      <a class="work-row" data-cat="software" href="https://github.com/DakyRetzu/ai-project-workspace" target="_blank" rel="noopener">
+      <a class="work-row" data-cat="software" href="https://ai-project-workspace-iota.vercel.app/" target="_blank" rel="noopener">
         <span class="idx mono">06</span>
         <div class="main">
           <h3>AI Project Workspace</h3>
           <p>AI-assisted workspace for organizing projects, tasks and progress on real engineering work.</p>
           <div class="tags"><span>TypeScript</span><span>Workflow</span></div>
         </div>
-        <span class="go">Repo <span class="arrow">↗</span></span>
+        <span class="go">Live <span class="arrow">↗</span></span>
+      </a>
+
+      <a class="work-row" data-cat="software" href="https://task-manager-mobile.vercel.app/" target="_blank" rel="noopener">
+        <span class="idx mono">07</span>
+        <div class="main">
+          <h3>Task Manager Mobile</h3>
+          <p>Kanban-style task manager built with React Native and Expo, with real-time sync via Supabase.</p>
+          <div class="tags"><span>React Native</span><span>Expo</span><span>Supabase</span></div>
+        </div>
+        <span class="go">Live <span class="arrow">↗</span></span>
       </a>
     </div>
   </div>
@@ -1107,9 +1117,9 @@
       geometry.computeVertexNormals();
 
       const material = new THREE.MeshStandardMaterial({
-        color: 0x1a1a1a,
-        metalness: 0.25,
-        roughness: 0.55
+        color: 0xff3b2f,
+        metalness: 0.3,
+        roughness: 0.45
       });
       const mesh = new THREE.Mesh(geometry, material);
 
@@ -1186,10 +1196,17 @@
     if(!img || !img.complete || !img.naturalWidth) return;
     const cw = window.innerWidth, ch = window.innerHeight;
     const iw = img.naturalWidth, ih = img.naturalHeight;
-    const scale = Math.max(cw / iw, ch / ih);
+    // Cap the zoom on extreme aspect mismatches (e.g. a landscape close-up
+    // shot on a narrow, tall phone screen) so the subject doesn't get
+    // cropped down to a sliver — letterbox instead of over-zooming.
+    const containScale = Math.min(cw / iw, ch / ih);
+    const coverScale = Math.max(cw / iw, ch / ih);
+    const scale = Math.min(coverScale, containScale * 1.1);
     const sw = iw * scale, sh = ih * scale;
     const dx = (cw - sw) / 2, dy = (ch - sh) / 2;
     ctx.clearRect(0, 0, cw, ch);
+    ctx.fillStyle = '#0A0A0A';
+    ctx.fillRect(0, 0, cw, ch);
     ctx.drawImage(img, dx, dy, sw, sh);
   }
 
