@@ -77,6 +77,12 @@
     padding:24px clamp(20px,5vw,72px);
     display:flex; align-items:center; justify-content:space-between;
     background:linear-gradient(180deg, rgba(10,10,10,0.9) 0%, rgba(10,10,10,0) 100%);
+    transition:opacity .9s ease .25s, transform .9s cubic-bezier(.2,.7,.2,1) .25s;
+  }
+  /* while the DT intro is running the page is locked: no nav, no scroll */
+  html.dt-lock header.site{
+    opacity:0; transform:translateY(-14px); pointer-events:none;
+    transition:opacity .3s ease, transform .3s ease;
   }
   header.site .brand{
     font-family:'Archivo', sans-serif; font-weight:800; font-size:15px; letter-spacing:0.02em;
@@ -1559,7 +1565,7 @@ nav.links a i{ font-style:normal; color:var(--red); font-size:9.5px; margin-righ
     <div class="drone-card reveal">
       <div class="drone-visual" id="deltaStl">
         <div class="drone-tag">STL · Interactive</div>
-        <div class="drone-hint"><span class="sq"></span><span class="hint-desktop">Drag to rotate · Scroll to zoom</span><span class="hint-mobile">Auto-rotating</span></div>
+        <div class="drone-hint"><span class="sq"></span><span class="hint-desktop">Drag to rotate</span><span class="hint-mobile">Auto-rotating</span></div>
       </div>
       <div class="drone-media">
         <div class="m">
@@ -1756,9 +1762,11 @@ nav.links a i{ font-style:normal; color:var(--red); font-size:9.5px; margin-righ
     controls.dampingFactor = 0.08;
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.8;
+    // rotation only: no pan, no zoom. The STL is a reduced-detail mesh, so
+    // zooming in just exposes the low poly count, and letting the wheel dolly
+    // the camera also swallowed the page scroll while the cursor was over it.
     controls.enablePan = false;
-    controls.minDistance = 1;
-    controls.maxDistance = 5000;
+    controls.enableZoom = false;
 
     // On touch devices, dragging the model would otherwise hijack vertical
     // page scroll. Keep it auto-rotating and non-interactive there instead
@@ -1823,6 +1831,11 @@ var oc=document.createElement('canvas'), ocx=oc.getContext('2d');
 var REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
 var COARSE=matchMedia('(pointer: coarse)').matches;
 var Q=new URLSearchParams(location.search);
+
+/* Lock the page from the very first frame whenever the intro is going to play,
+   so nothing can be scrolled (and no nav shows) while the video set loads. */
+var WILL_PLAY=!(REDUCE||Q.get('done')==='1'||window.scrollY>40||(location.hash&&location.hash!=='#top'));
+if(WILL_PLAY)document.documentElement.classList.add('dt-lock');
 
 // ---- tuning -------------------------------------------------------------
 var CFG={hold:2.6, holdTouch:2.9, back:1.5, grace:0.14, nameAt:2.3, autoAfter:16, zoom:1.02, fallbackD:5.08, fallbackBoom:5.15};
@@ -2063,7 +2076,13 @@ function showPlate(instant){
   void plate.offsetWidth;
   plate.classList.add('show');
 }
-function skip(){if(mode==='done'||!S)return;goDone(true);}
+function skip(){
+  if(mode==='done')return;
+  /* still loading: there is no video set yet, so end the intro directly
+     instead of leaving the page locked behind the Skip button */
+  if(!S){mode='done';loadEl.classList.add('off');showPlate(true);HERO.classList.add('dt-done');lock(false);return;}
+  goDone(true);
+}
 function replay(){
   if(!S||!S.ready)return;
   try{S.tf.pause();S.tr.pause();S.boom.pause();S.boom.currentTime=0;}catch(e){}
