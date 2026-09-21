@@ -754,7 +754,6 @@
     <a href="#work">Work</a>
     <a href="#drones">Builds</a>
     <a href="#art">Art</a>
-    <a href="#lowpoly">Low-Poly</a>
     <a href="#stack">Stack</a>
     <a href="#contact">Contact</a>
   </nav>
@@ -765,7 +764,6 @@
   <a href="#work">Work</a>
   <a href="#drones">Builds</a>
   <a href="#art">Art</a>
-  <a href="#lowpoly">Low-Poly</a>
   <a href="#stack">Stack</a>
   <a href="#contact">Contact</a>
   <div class="nav-social">
@@ -818,7 +816,6 @@
     </div>
   </div>
 </section>
-
 <section id="work">
   <div class="ambient" aria-hidden="true"><span></span><span></span></div>
   <div class="wrap">
@@ -923,6 +920,15 @@
   </div>
   <span class="go">Live <span class="arrow">↗</span></span>
 </a>
+      <a class="work-card" data-cat="software" href="lowpoly/" target="_blank" rel="noopener">
+  <span class="idx mono">10</span>
+  <div class="main">
+    <h3>Poly Room</h3>
+    <p>A small set of low-poly 3D scenes – modeled, textured and rendered from scratch in Blender, each one built around a single visual idea.</p>
+    <div class="tags"><span>Blender</span><span>Low-Poly</span><span>3D</span></div>
+  </div>
+  <span class="go">Live <span class="arrow">↗</span></span>
+</a>
     </div>
   </div>
 </section>
@@ -1013,44 +1019,6 @@
         <a class="art-cta" href="https://www.behance.net/danzoretsu" target="_blank" rel="noopener">
           View Portfolio on Behance <span class="arrow">↗</span>
         </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="lowpoly">
-  <div class="ambient" aria-hidden="true"><span></span><span></span></div>
-  <div class="wrap">
-    <div class="section-head reveal">
-      <div class="eyebrow"><span class="sq"></span>Also – Low-Poly 3D</div>
-      <h2>Small scenes, modeled and lit from scratch in Blender.</h2>
-      <p class="lede">A side practice outside client work – three low-poly scenes, each modeled, textured and rendered entirely in Blender, turntabled here as short loops.</p>
-    </div>
-
-    <div class="build-gallery reveal">
-      <div class="g-item">
-        <div class="g-photo">
-          <video autoplay muted loop playsinline preload="auto" poster="assets/lowpoly/room-hero.jpg">
-            <source src="assets/lowpoly/room-reel.mp4" type="video/mp4">
-          </video>
-        </div>
-        <div class="g-cap"><span class="g-idx">FIG. 01</span><span class="g-label">Room – low-poly interior</span></div>
-      </div>
-      <div class="g-item">
-        <div class="g-photo">
-          <video autoplay muted loop playsinline preload="auto" poster="assets/lowpoly/mug-hero.jpg">
-            <source src="assets/lowpoly/mug-reel.mp4" type="video/mp4">
-          </video>
-        </div>
-        <div class="g-cap"><span class="g-idx">FIG. 02</span><span class="g-label">Mug – still life study</span></div>
-      </div>
-      <div class="g-item">
-        <div class="g-photo">
-          <video autoplay muted loop playsinline preload="auto" poster="assets/lowpoly/cyber-hero.jpg">
-            <source src="assets/lowpoly/cyber-reel.mp4" type="video/mp4">
-          </video>
-        </div>
-        <div class="g-cap"><span class="g-idx">FIG. 03</span><span class="g-label">Cyberpunk PC – desk build</span></div>
       </div>
     </div>
   </div>
@@ -1235,10 +1203,6 @@
     overlay.querySelectorAll('a').forEach(a=>a.addEventListener('click', close));
   })();
 
-  // Hero scrub: pinned via a taller wrapper – the hero stays visually fixed
-  // while the video's frame sequence advances with scroll, only releasing
-  // to the next section once scroll has passed the full pin runway (i.e.
-  // once the clip has fully played through).
   const HERO_FRAMES = Array.from({length: 28}, (_, i) => `assets/hero/f_${String(i+1).padStart(3,'0')}.jpg`);
   const heroPin = document.getElementById('heroPin');
   const canvas = document.getElementById('heroCanvas');
