@@ -495,7 +495,12 @@
     width:100%; height:100%; object-fit:cover; display:block;
     transition:transform .6s cubic-bezier(.2,.7,.2,1);
   }
+  .build-gallery .g-photo video{
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition:transform .6s cubic-bezier(.2,.7,.2,1);
+  }
   .build-gallery .g-item:hover .g-photo img{ transform:scale(1.045); }
+  .build-gallery .g-item:hover .g-photo video{ transform:scale(1.045); }
   .build-gallery .g-cap{
     margin-top:14px;
     padding-top:12px;
@@ -749,6 +754,7 @@
     <a href="#work">Work</a>
     <a href="#drones">Builds</a>
     <a href="#art">Art</a>
+    <a href="#lowpoly">Low-Poly</a>
     <a href="#stack">Stack</a>
     <a href="#contact">Contact</a>
   </nav>
@@ -759,6 +765,7 @@
   <a href="#work">Work</a>
   <a href="#drones">Builds</a>
   <a href="#art">Art</a>
+  <a href="#lowpoly">Low-Poly</a>
   <a href="#stack">Stack</a>
   <a href="#contact">Contact</a>
   <div class="nav-social">
@@ -1011,6 +1018,44 @@
   </div>
 </section>
 
+<section id="lowpoly">
+  <div class="ambient" aria-hidden="true"><span></span><span></span></div>
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow"><span class="sq"></span>Also – Low-Poly 3D</div>
+      <h2>Small scenes, modeled and lit from scratch in Blender.</h2>
+      <p class="lede">A side practice outside client work – three low-poly scenes, each modeled, textured and rendered entirely in Blender, turntabled here as short loops.</p>
+    </div>
+
+    <div class="build-gallery reveal">
+      <div class="g-item">
+        <div class="g-photo">
+          <video autoplay muted loop playsinline preload="auto" poster="assets/lowpoly/room-hero.jpg">
+            <source src="assets/lowpoly/room-reel.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="g-cap"><span class="g-idx">FIG. 01</span><span class="g-label">Room – low-poly interior</span></div>
+      </div>
+      <div class="g-item">
+        <div class="g-photo">
+          <video autoplay muted loop playsinline preload="auto" poster="assets/lowpoly/mug-hero.jpg">
+            <source src="assets/lowpoly/mug-reel.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="g-cap"><span class="g-idx">FIG. 02</span><span class="g-label">Mug – still life study</span></div>
+      </div>
+      <div class="g-item">
+        <div class="g-photo">
+          <video autoplay muted loop playsinline preload="auto" poster="assets/lowpoly/cyber-hero.jpg">
+            <source src="assets/lowpoly/cyber-reel.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="g-cap"><span class="g-idx">FIG. 03</span><span class="g-label">Cyberpunk PC – desk build</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="stack">
   <div class="ambient" aria-hidden="true"><span></span><span></span></div>
   <div class="wrap">
@@ -1219,14 +1264,8 @@
     if(!img || !img.complete || !img.naturalWidth) return;
     const cw = window.innerWidth, ch = window.innerHeight;
     const iw = img.naturalWidth, ih = img.naturalHeight;
-    // Cap the zoom on extreme aspect mismatches (e.g. a landscape close-up
-    // shot on a narrow, tall phone screen) so the subject doesn't get
-    // cropped down to a sliver — letterbox instead of over-zooming.
     const containScale = Math.min(cw / iw, ch / ih);
     const coverScale = Math.max(cw / iw, ch / ih);
-    // Only cap the zoom on portrait/narrow screens (phones) where a landscape
-    // close-up would otherwise crop down to a sliver. On landscape/desktop
-    // screens, use true full-bleed cover — no black bars.
     const isPortraitViewport = ch > cw;
     const scale = isPortraitViewport ? Math.min(coverScale, containScale * 1.1) : coverScale;
     const sw = iw * scale, sh = ih * scale;
@@ -1274,8 +1313,6 @@
   }, { threshold: 0.4 });
   document.querySelectorAll('.reveal-line').forEach(el=>ioLine.observe(el));
 
-  // "Digitize" panels: build a pixel grid with randomized flicker timing,
-  // then start the flicker once the panel scrolls into view.
   document.querySelectorAll('.digitize .px-grid').forEach(grid=>{
     const total = 140;
     for(let i=0;i<total;i++){
@@ -1295,7 +1332,6 @@
   }, { threshold: 0.3 });
   document.querySelectorAll('.reveal-digitize').forEach(el=>ioDigitize.observe(el));
 
-  // Work section: filter tabs
   (function initWorkFilter(){
     const tabs = document.querySelectorAll('.ftab');
     const rows = document.querySelectorAll('.work-card');
@@ -1312,13 +1348,11 @@
     });
   })();
 
-  // About Me: CV card slides in (and only becomes clickable) as the user
-  // scrolls through the pinned section – same locked-until-done pattern as hero.
   (function initCvReveal(){
     const pin = document.getElementById('aboutMePin');
     const card = document.getElementById('cvCard');
     if(!pin || !card) return;
-    if(window.matchMedia('(max-width:860px)').matches) return; // mobile: always visible, no pin
+    if(window.matchMedia('(max-width:860px)').matches) return;
 
     function computeAndApply(){
       const rect = pin.getBoundingClientRect();
