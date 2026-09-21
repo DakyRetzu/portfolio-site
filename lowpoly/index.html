@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poly Room</title>
+<meta name="description" content="Poly Room — a small collection of low-poly 3D scenes.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --bg:#0e0c12;
+    --bg-alt:#17141d;
+    --ink:#f3eee6;
+    --ink-muted:#a79eb1;
+    --line:rgba(243,238,230,.13);
+    --accent:#e2935a;
+    --accent-2:#8f6fe8;
+    --font-display:'Fraunces',Georgia,'Times New Roman',serif;
+    --font-body:'Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    --font-mono:'Space Mono','SFMono-Regular',Consolas,monospace;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    padding-inline:0;
+  }
+  img{max-width:100%;display:block}
+  h1,h2,h3{font-family:var(--font-display);font-weight:600;margin:0;text-wrap:balance}
+  p{margin:0}
+  a{color:inherit}
+
+  .wrap{max-width:1180px;margin-inline:auto;padding-inline:clamp(20px,5vw,64px)}
+
+  /* ---------- nav ---------- */
+  .nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding-block:22px;
+    padding-inline:clamp(20px,5vw,64px);
+    font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;
+    color:var(--ink-muted);
+    border-bottom:1px solid var(--line);
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .nav .name{color:var(--ink)}
+  .nav .tag{display:flex;gap:6px;align-items:center}
+  .nav .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+  /* ---------- hero ---------- */
+  .hero{padding-block:clamp(48px,9vw,96px) clamp(40px,7vw,72px)}
+  .hero-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:clamp(24px,5vw,56px);align-items:center}
+  .hero-art{display:flex;align-items:center;justify-content:center}
+  .hero-art svg{width:100%;max-width:340px;height:auto}
+  .eyebrow{
+    font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:18px;display:block;
+  }
+  .hero h1{
+    font-size:clamp(2.4rem,6.2vw,4.6rem);
+    line-height:1.03;
+    letter-spacing:-.01em;
+    max-width:14ch;
+  }
+  .hero h1 em{font-style:italic;color:var(--accent)}
+  .hero-sub{margin-top:clamp(28px,5vw,44px);max-width:56ch}
+  .hero-sub p{color:var(--ink-muted);font-size:1.15rem;line-height:1.55}
+  .style-tags{
+    display:flex;flex-wrap:wrap;gap:10px;
+    margin-top:clamp(30px,5vw,46px);
+    padding-top:clamp(24px,4vw,34px);
+    border-top:1px solid var(--line);
+  }
+  .style-tags span{
+    font-family:var(--font-mono);font-size:11.5px;letter-spacing:.1em;
+    color:var(--ink-muted);border:1px solid var(--line);border-radius:99px;
+    padding:7px 14px;transition:color .15s ease,border-color .15s ease;
+  }
+  .style-tags span:hover{color:var(--accent);border-color:var(--accent)}
+  .style-tags span:last-child{color:var(--accent-2);border-color:var(--accent-2)}
+
+  /* ---------- thesis ---------- */
+  .thesis{
+    padding-block:clamp(40px,7vw,72px);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    background:var(--bg-alt);
+  }
+  .thesis .wrap{display:grid;grid-template-columns:.6fr 1.4fr;gap:clamp(20px,4vw,48px)}
+  .thesis .label{font-family:var(--font-mono);font-size:12px;letter-spacing:.1em;color:var(--ink-muted);text-transform:uppercase;padding-top:6px}
+  .thesis p{font-family:var(--font-display);font-weight:500;font-size:clamp(1.3rem,2.6vw,1.9rem);line-height:1.4;letter-spacing:-.005em}
+  .thesis p .hl{color:var(--accent-2)}
+
+  /* ---------- projects ---------- */
+  .project{padding-block:clamp(56px,9vw,104px);border-bottom:1px solid var(--line)}
+
+  .project-head{max-width:64ch;margin-bottom:clamp(30px,5vw,46px)}
+  .project-head .threshold{
+    font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:10px;
+  }
+  .project-head .threshold::before{content:"";width:22px;height:1px;background:var(--accent)}
+  .project-head h2{font-size:clamp(1.9rem,3.6vw,2.7rem);line-height:1.08;margin-bottom:16px;max-width:16ch}
+  .project-head .desc{color:var(--ink-muted);font-size:1.02rem;max-width:56ch;margin-bottom:20px}
+  .project-head .meta{
+    display:flex;gap:22px;flex-wrap:wrap;
+    font-family:var(--font-mono);font-size:11.5px;letter-spacing:.05em;color:var(--ink-muted);
+    padding-top:16px;border-top:1px solid var(--line);
+  }
+  .project-head .meta b{color:var(--ink);font-weight:700}
+
+  /* ---------- media stack: main image, then 2-3 stills, then video ---------- */
+  .media-stack{display:flex;flex-direction:column;gap:clamp(10px,1.6vw,16px)}
+  .media-main,.media-thumb,.media-video{
+    border-radius:2px;overflow:hidden;border:1px solid var(--line);
+    background:var(--bg-alt);position:relative;
+  }
+  .media-main{aspect-ratio:16/9.2}
+  .media-row{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(10px,1.6vw,16px)}
+  .media-row.single{grid-template-columns:1fr}
+  .media-thumb{aspect-ratio:4/3}
+  .media-row.single .media-thumb{aspect-ratio:16/8}
+  .media-video{aspect-ratio:16/8;cursor:pointer}
+  .media-main img,.media-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .media-video video{width:100%;height:100%;object-fit:cover;display:block}
+  .media-video .vid-tag{
+    position:absolute;left:10px;bottom:10px;
+    font-family:var(--font-mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink);
+    background:rgba(14,12,18,.68);padding:5px 9px;border-radius:2px;
+    display:flex;align-items:center;gap:7px;backdrop-filter:blur(2px);
+  }
+  .media-video .vid-tag .pulse{width:6px;height:6px;border-radius:50%;background:var(--accent);flex:none}
+  .media-video .playstate{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(14,12,18,0);transition:background .18s ease;pointer-events:none;
+  }
+  .media-video.is-paused .playstate{background:rgba(14,12,18,.4)}
+  .media-video .playstate svg{
+    width:44px;height:44px;opacity:0;transform:scale(.9);
+    transition:opacity .18s ease,transform .18s ease;
+    filter:drop-shadow(0 4px 14px rgba(0,0,0,.5));
+  }
+  .media-video.is-paused .playstate svg{opacity:1;transform:scale(1)}
+
+  /* ---------- closing ---------- */
+  .closing{padding-block:clamp(64px,10vw,120px);text-align:center}
+  .closing .eyebrow{display:inline-block}
+  .closing h2{
+    font-size:clamp(2rem,5vw,3.4rem);max-width:16ch;margin-inline:auto;line-height:1.08;
+  }
+  .closing h2 em{font-style:italic;color:var(--accent-2)}
+  .closing p{color:var(--ink-muted);max-width:44ch;margin:22px auto 0;font-size:1.05rem}
+  .closing .links{
+    margin-top:36px;display:flex;gap:28px;justify-content:center;flex-wrap:wrap;
+    font-family:var(--font-mono);font-size:13px;letter-spacing:.05em;
+  }
+  .closing .links a{
+    color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:3px;
+    transition:border-color .15s ease,color .15s ease;
+  }
+  .closing .links a:hover{border-color:var(--accent);color:var(--accent)}
+
+  footer{
+    border-top:1px solid var(--line);
+    padding-block:22px;
+    font-family:var(--font-mono);font-size:11px;letter-spacing:.05em;color:var(--ink-muted);
+    display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width:820px){
+    .hero-grid{grid-template-columns:1fr;gap:8px}
+    .hero-art{order:-1;max-width:220px;margin-inline:auto}
+    .thesis .wrap{grid-template-columns:1fr;gap:14px}
+    .media-main{aspect-ratio:4/3.2}
+    .media-video{aspect-ratio:16/10}
+  }
+  @media (max-width:520px){
+    .media-row{grid-template-columns:1fr}
+    .media-thumb{aspect-ratio:16/11}
+  }
+
+  @media (prefers-reduced-motion:no-preference){
+    .reveal{animation:rise .7s ease both}
+    @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="name">POLY ROOM</div>
+  <div class="tag"><span class="dot"></span> SELECTED SCENES</div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">A small collection of 3D scenes</span>
+      <h1>Small scenes.<br>Other worlds<em>,</em> waiting<br>on the other side.</h1>
+      <div class="hero-sub">
+        <p>Same low-poly toolkit, pointed at a different idea each time: cozy, or feral, or lit like a crime scene.</p>
+      </div>
+      <div class="style-tags">
+        <span>COZY</span><span>DOMESTIC</span><span>NEON</span><span>FERAL</span>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 480 340" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="358" cy="72" r="30" fill="var(--accent)" opacity=".85"/>
+        <polygon points="0,340 90,150 190,340" fill="var(--accent-2)" opacity=".5"/>
+        <polygon points="120,340 232,86 344,340" fill="var(--accent-2)" opacity=".85"/>
+        <polygon points="232,86 344,340 296,340 232,192" fill="var(--accent)" opacity=".55"/>
+        <polygon points="278,340 400,168 480,340" fill="var(--ink-muted)" opacity=".22"/>
+        <polygon points="-20,340 62,228 190,340" fill="var(--bg-alt)"/>
+        <polygon points="150,340 262,206 400,340" fill="var(--bg-alt)" opacity=".92"/>
+        <polygon points="58,58 72,58 65,45" fill="var(--accent)"/>
+        <polygon points="418,138 431,138 424,125" fill="var(--accent-2)"/>
+        <polygon points="38,218 49,218 43,206" fill="var(--accent)" opacity=".7"/>
+        <polygon points="440,258 451,258 445,247" fill="var(--accent-2)" opacity=".7"/>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<section class="thesis">
+  <div class="wrap">
+    <span class="label">The idea</span>
+    <p>An ordinary scene, rendered carefully enough to trust. <span class="hl">Then one detail breaks it.</span></p>
+  </div>
+</section>
+
+<main>
+
+  <article class="project">
+    <div class="wrap">
+      <div class="project-head">
+        <span class="threshold">The window</span>
+        <h2>The mountains were never outside.</h2>
+        <p class="desc">A quiet corner room, warm as a memory. The window looks out on a range of peaks, except they're painted, flat, closer than any horizon. Nobody in the room seems to mind.</p>
+        <div class="meta"><span><b>Build</b> full room, baked lighting</span><span><b>Light</b> late-afternoon interior</span><span><b>Threshold</b> the corner window</span></div>
+      </div>
+      <div class="media-stack">
+        <div class="media-main"><img src="images/room-hero.jpg" alt="A warm, low-poly bedroom corner with a desk, bed and a large corner window showing painted mountains." loading="lazy"></div>
+        <div class="media-row">
+          <div class="media-thumb"><img src="images/room-detail.jpg" alt="Close-up of the desk under the window, with a laptop, notebook and small plant." loading="lazy"></div>
+          <div class="media-thumb"><img src="images/room-wide.jpg" alt="Wide angle of the full room showing the bed, desk and door." loading="lazy"></div>
+        </div>
+        <div class="media-video">
+          <video poster="images/room-hero.jpg" autoplay muted loop playsinline webkit-playsinline><source src="videos/room-reel.mp4" type="video/mp4"></video>
+          <span class="vid-tag"><span class="pulse"></span>REEL</span>
+          <div class="playstate"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(14,12,18,.55)" stroke="rgba(243,238,230,.5)"/><path d="M10 8l7 4-7 4V8z" fill="#f3eee6"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <article class="project">
+    <div class="wrap">
+      <div class="project-head">
+        <span class="threshold">The cup</span>
+        <h2>He got in before it cooled.</h2>
+        <p class="desc">Coffee's best drunk hot, they say, so he didn't wait. Shoulder-deep and entirely at ease, steam curling past his face like it's just another bath.</p>
+        <div class="meta"><span><b>Build</b> studio product setup</span><span><b>Light</b> warm three-point</span><span><b>Threshold</b> the coffee's surface</span></div>
+      </div>
+      <div class="media-stack">
+        <div class="media-main"><img src="images/mug-side.jpg" alt="Dramatic side profile of a small low-poly figure sitting shoulder-deep in a red coffee mug, steam curling past his face." loading="lazy"></div>
+        <div class="media-row single">
+          <div class="media-thumb"><img src="images/mug-hero.jpg" alt="A red coffee mug on a saucer, steam rising, with the figure sitting shoulder-deep in the coffee as if bathing." loading="lazy"></div>
+        </div>
+        <div class="media-video">
+          <video poster="images/mug-side.jpg" autoplay muted loop playsinline webkit-playsinline><source src="videos/mug-reel.mp4" type="video/mp4"></video>
+          <span class="vid-tag"><span class="pulse"></span>360&deg;</span>
+          <div class="playstate"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(14,12,18,.55)" stroke="rgba(243,238,230,.5)"/><path d="M10 8l7 4-7 4V8z" fill="#f3eee6"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <article class="project">
+    <div class="wrap">
+      <div class="project-head">
+        <span class="threshold">The screen</span>
+        <h2>The static finally reached out.</h2>
+        <p class="desc">An old 486 finally caught a bug: a tentacle crawling out of the cracked screen, reaching for the keys. This one you can't fix with a reboot.</p>
+        <div class="meta"><span><b>Build</b> hero prop + creature</span><span><b>Light</b> motivated, screen-sourced</span><span><b>Threshold</b> the cracked CRT</span></div>
+      </div>
+      <div class="media-stack">
+        <div class="media-main"><img src="images/cyber-detail.jpg" alt="Wide view of the cyberpunk desk: an old 486 computer with a tentacle emerging from the glowing violet screen and arcing down to a backlit keyboard, books and a mug nearby." loading="lazy"></div>
+        <div class="media-row single">
+          <div class="media-thumb"><img src="images/cyber-macro.jpg" alt="Macro shot of the tentacle's suckers lit by the pink static of the cracked screen." loading="lazy"></div>
+        </div>
+        <div class="media-video">
+          <video poster="images/cyber-detail.jpg" autoplay muted loop playsinline webkit-playsinline><source src="videos/cyber-reel.mp4" type="video/mp4"></video>
+          <span class="vid-tag"><span class="pulse"></span>120&deg; TURN</span>
+          <div class="playstate"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="11" fill="rgba(14,12,18,.55)" stroke="rgba(243,238,230,.5)"/><path d="M10 8l7 4-7 4V8z" fill="#f3eee6"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </article>
+
+</main>
+
+<section class="closing">
+  <div class="wrap">
+    <span class="eyebrow">That's the set, for now</span>
+    <h2>Not one mood.<br>Just <em>different doors.</em></h2>
+    <p>More scenes are already queued up.</p>
+    <div class="links">
+      <a href="../index.html" rel="noopener">Back to Portfolio &nbsp;↗</a>
+      <a href="https://behance.net/danzoretsu" target="_blank" rel="noopener">Behance &nbsp;↗</a>
+      <a href="https://instagram.com/dakkyyy" target="_blank" rel="noopener">Instagram &nbsp;↗</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display:flex;justify-content:space-between;width:100%;flex-wrap:wrap;gap:10px">
+    <span>© Poly Room</span>
+    <span>Blender &middot; low-poly &middot; different moods, same toolkit</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  document.querySelectorAll('.media-video').forEach(function(wrap){
+    var v = wrap.querySelector('video');
+    if(!v) return;
+    v.muted = true;
+    v.defaultMuted = true;
+    function sync(){ wrap.classList.toggle('is-paused', v.paused); }
+    function tryPlay(){
+      var p = v.play();
+      if(p && p.catch){ p.catch(function(){ sync(); }); }
+    }
+    v.addEventListener('play', sync);
+    v.addEventListener('pause', sync);
+    v.addEventListener('loadeddata', function(){ sync(); tryPlay(); });
+    v.addEventListener('canplay', function(){ sync(); tryPlay(); });
+    sync();
+    tryPlay();
+    wrap.addEventListener('click', function(){
+      if(v.paused){ v.play().catch(function(){}); } else { v.pause(); }
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
+
