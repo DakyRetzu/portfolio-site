@@ -980,12 +980,6 @@
 .in-index a.on{ color:var(--red); }
 @media (min-width:1000px){ .in-index{ display:block; } }
 
-/* top right: where this is made */
-.in-coords{ position:absolute; z-index:2; right:clamp(16px,3.6vw,64px); top:clamp(86px,10vh,112px); display:grid; grid-template-columns:auto auto; column-gap:14px; align-items:start;
-  font-size:11.5px; letter-spacing:.12em; color:var(--ink-mute); line-height:1.7; text-align:left; }
-.in-coords svg{ grid-row:1 / span 2; width:28px; height:28px; stroke:var(--ink-mute); fill:none; stroke-width:1; margin-top:2px; }
-.in-coords span{ grid-column:2; }
-
 .in-inner{ position:relative; z-index:2; padding:0 clamp(20px,5vw,72px); }
 @media (min-width:1000px){ .in-inner{ padding-left:clamp(90px,8.7vw,180px); padding-right:clamp(20px,4vw,72px); } }
 
@@ -1322,10 +1316,6 @@ nav.links a i{ font-style:normal; color:var(--red); font-size:9.5px; margin-righ
 
 <section class="intro" id="about" aria-labelledby="introTitle">
   <div class="in-dust" aria-hidden="true"></div>
-  <div class="in-coords mono" aria-hidden="true">
-    <svg viewBox="0 0 28 28"><path d="M14 2 V26 M2 14 H26"/></svg>
-    <span>43.8563° N</span><span>18.4131° E</span>
-  </div>
   <div class="in-inner">
     <div class="in-label mono"><span>Introduction</span><i aria-hidden="true"></i></div>
     <div class="in-hwrap">
