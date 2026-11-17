@@ -167,7 +167,7 @@
   .dt-cv{ position:absolute; inset:0; width:100%; height:100%; display:block; }
   .dt-burst-video{
     position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
-    z-index:1; opacity:0; pointer-events:none; transition:opacity .28s ease;
+    z-index:1; opacity:0; pointer-events:none; transition:opacity .45s ease;
   }
   .dt-burst-video.on{ opacity:1; }
   .dt-burst-video::-webkit-media-controls{ display:none !important; }
@@ -206,6 +206,15 @@
   .dt-plate .role .sq{ display:inline-block; width:6px; height:6px; background:var(--red); margin-right:14px; vertical-align:1px; text-indent:0; }
   .dt-plate.show h1{ opacity:1; filter:blur(0); transform:none; letter-spacing:0.34em; text-indent:0.34em; }
   .dt-plate.show .role{ opacity:1; filter:blur(0); }
+  #top.dt-native .dt-plate h1{
+    filter:none; letter-spacing:.34em; text-indent:.34em; transform:translate3d(0,8px,0);
+    transition:opacity 2.8s ease, transform 2.8s ease;
+  }
+  #top.dt-native .dt-plate.show h1{ transform:translate3d(0,0,0); }
+  #top.dt-native .dt-plate .role{ filter:none; transition:opacity 1.8s ease 1.1s; }
+  @media(max-width:700px){
+    #top.dt-native .dt-plate h1{ letter-spacing:.22em; text-indent:.22em; }
+  }
   .dt-plate.instant *{ transition:none !important; }
   .dt-scroll{
     position:absolute; left:50%; z-index:2; transform:translateX(-50%);
@@ -1800,7 +1809,7 @@ var oc=document.createElement('canvas'), ocx=oc.getContext('2d');
 var COARSE=matchMedia('(pointer: coarse)').matches;
 var Q=new URLSearchParams(location.search);
 
-var bootTimer=0, burstTimer=0, loadVersion=0, raf=0, mediaTime=0, mediaMovedAt=0;
+var bootTimer=0, burstTimer=0, nativeBurstTimer=0, loadVersion=0, raf=0, mediaTime=0, mediaMovedAt=0;
 var replayBtn=$('dtReplay');
 
 // ---- tuning -------------------------------------------------------------
@@ -2038,7 +2047,11 @@ function commit(){
   try{S.tf.pause();S.tr.pause();}catch(e){}
   try{S.boom.currentTime=0;}catch(e){}
   var boom=S.boom;
-  if(S.nativeBurst)boom.classList.add('on');
+  if(S.nativeBurst){
+    boom.classList.add('on');
+    cancelAnimationFrame(raf);
+    watchNativeBurst(boom);
+  }
   burstTimer=setTimeout(function(){
     if(mode==='burst'&&S&&S.boom===boom)goDone(false);
   },Math.max(8500,(S.bD+3)*1000));
@@ -2046,20 +2059,45 @@ function commit(){
   if(pr&&pr.catch)pr.catch(function(){if(mode==='burst'&&S&&S.boom===boom)goDone(false);});
   hint.classList.remove('on');
 }
+function watchNativeBurst(boom){
+  var previousTime=boom.currentTime, lastProgress=performance.now(), retried=false;
+  function check(){
+    if(mode!=='burst'||!S||S.boom!==boom)return;
+    if(boom.ended){goDone(false);return;}
+    var now=performance.now();
+    if(boom.currentTime>previousTime+0.01){
+      previousTime=boom.currentTime;
+      lastProgress=now;
+    }else if(now-lastProgress>1100){
+      if(retried){goDone(false);return;}
+      retried=true;
+      lastProgress=now;
+      try{
+        var resumeAt=previousTime+0.04;
+        if(resumeAt<boom.duration)boom.currentTime=resumeAt;
+        var attempt=boom.play();
+        if(attempt&&attempt.catch)attempt.catch(function(){});
+      }catch(e){}
+    }
+    nativeBurstTimer=setTimeout(check,250);
+  }
+  nativeBurstTimer=setTimeout(check,250);
+}
 function goDone(instant){
   if(mode==='done')return;
-  mode='done';clearTimeout(bootTimer);clearTimeout(burstTimer);cancelAnimationFrame(raf);
+  mode='done';clearTimeout(bootTimer);clearTimeout(burstTimer);clearTimeout(nativeBurstTimer);cancelAnimationFrame(raf);
   loadEl.classList.add('off');
   if(S)try{S.tf&&S.tf.pause();S.tr&&S.tr.pause();S.boom&&S.boom.pause();}catch(e){}
-  if(S&&S.nativeBurst&&S.boom)S.boom.classList.remove('on');
   showPlate(instant);
   HERO.classList.add('dt-done');
   if(instant)unlockPortfolio();
   else if(document.documentElement.classList.contains('dt-lock')){
-    revealTimer=setTimeout(unlockPortfolio,Math.max(0,3300-(performance.now()-revealedAt)));
+    var revealLimit=S&&S.nativeBurst?2900:3300;
+    revealTimer=setTimeout(unlockPortfolio,Math.max(0,revealLimit-(performance.now()-revealedAt)));
   }
   hint.classList.remove('on');
   if(S&&lay)try{render(performance.now());}catch(e){}
+  if(S&&S.nativeBurst&&S.boom)S.boom.classList.remove('on');
 }
 var revealTimer=0, revealedAt=0;
 function unlockPortfolio(){
@@ -2324,7 +2362,9 @@ function start(name){
   bootTimer=setTimeout(skip,12000);
   loadSet(name,version).then(function(s){
     if(version!==loadVersion)return;
-    dropSet(S);S=s;primed=false;layout();
+    dropSet(S);S=s;primed=false;
+    HERO.classList.toggle('dt-native',!!s.nativeBurst);
+    layout();
     if(mode==='done'){
       render(performance.now());
       if(!s.more)return;
