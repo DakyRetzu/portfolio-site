@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Danijel Tupajić · Frontend Engineer &amp; Creative Technologist</title>
-<meta name="description" content="Danijel Tupajić, frontend engineer specializing in 3D, WebGL and motion systems. Formerly aerospace/CAD design.">
+<title>Danijel Tupajić · Software &amp; AI Developer · 3D Designer</title>
+<meta name="description" content="Danijel Tupajić builds software and AI tools, with a background in 3D and CAD design.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Michroma&display=swap" rel="stylesheet">
@@ -150,14 +150,15 @@
     content:""; position:absolute; left:0; right:0; bottom:0; height:22%; z-index:1; pointer-events:none;
     background:linear-gradient(180deg, rgba(10,10,10,0) 0%, var(--bg) 100%);
   }
-  html.dt-lock, html.dt-lock body{ overflow:hidden; }
   .dt-stage{
     position:absolute; inset:0; overflow:hidden;
-    touch-action:none; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;
-    cursor:none; outline:none;
+    touch-action:pan-y; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent;
+    cursor:default; outline:none;
   }
   .dt-stage.nocur{ cursor:default; }
   .hero-dt.dt-done .dt-stage{ touch-action:pan-y; cursor:default; }
+  .dt-stage{ background:#000 url('assets/hero-dt/desktop/f0.webp') center / cover no-repeat; }
+  @media (orientation:portrait){ .dt-stage{ background-image:url('assets/hero-dt/mobile/f0.webp'); } }
   .dt-cv{ position:absolute; inset:0; width:100%; height:100%; display:block; }
   .dt-load, .dt-hint{
     position:absolute; left:0; right:0; z-index:2; pointer-events:none;
@@ -216,7 +217,7 @@
   .dt-btn:hover{ color:var(--ink); border-color:var(--ink-mute); }
   .dt-btn.replay{ display:none; opacity:.7; }
   .hero-dt.dt-done .dt-btn.skip{ display:none; }
-  .hero-dt.dt-done .dt-btn.replay{ display:block; }
+  .hero-dt.dt-done .dt-btn.replay:not([hidden]){ display:block; }
   @media (max-aspect-ratio:1/1){
     .dt-plate{ top:40%; }
     .dt-plate h1{ font-size:clamp(32px, 10.6vw, 62px); letter-spacing:0.36em; text-indent:0.36em; }
@@ -1303,14 +1304,14 @@ nav.links a i{ font-style:normal; color:var(--red); font-size:9.5px; margin-righ
     <canvas class="dt-cv" id="dtCv"></canvas>
     <div class="dt-plate" id="dtPlate">
       <h1><span>Danijel</span> <span>Tupajić</span></h1>
-      <div class="role"><span class="sq"></span>Creative Frontend Developer</div>
+      <div class="role"><span class="sq"></span>Software &amp; AI Developer · 3D Designer</div>
     </div>
     <div class="dt-hint" id="dtHint"><span id="dtHintTxt">Hold your cursor on the DT</span><span class="dt-bar"><b id="dtHintBar"></b></span></div>
     <div class="dt-load" id="dtLoad">Loading<span class="dt-bar"><b id="dtLoadBar"></b></span></div>
   </div>
   <a class="dt-scroll" href="#about" aria-label="Scroll to content">Scroll<i></i></a>
   <button class="dt-btn skip" id="dtSkip" type="button">Skip intro</button>
-  <button class="dt-btn replay" id="dtReplay" type="button">Replay</button>
+  <button class="dt-btn replay" id="dtReplay" type="button" hidden>Replay</button>
 </section>
 <noscript><style>.dt-plate h1,.dt-plate .role{opacity:1!important;filter:none!important;transform:none!important}.dt-load,.dt-btn{display:none}.dt-scroll{opacity:1!important}</style></noscript>
 
@@ -1578,7 +1579,7 @@ nav.links a i{ font-style:normal; color:var(--red); font-size:9.5px; margin-righ
   <div class="wrap">
     <div class="ch-head">
       <div class="ch-label"><span>Physical builds</span><i aria-hidden="true"></i></div>
-      <h2 class="ch-h" data-glitch>Three years of <span class="hl">CAD, print and flight</span>, before a single line of frontend code.</h2>
+      <h2 class="ch-h" data-glitch>Three years of <span class="hl">CAD, print and flight</span>, before moving into software development.</h2>
       <p class="ch-lede reveal">For three years I worked as a CAD engineer, designing, 3D-printing, assembling and flying drones, and developing the onboard AI that helped fly them.</p>
     </div>
 
@@ -1744,100 +1745,6 @@ nav.links a i{ font-style:normal; color:var(--red); font-size:9.5px; margin-righ
   <span class="mono">Sarajevo, BA · 43.8563° N 18.4131° E</span>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script>
-  // --- Delta Wing STL viewer ---
-  (function initDeltaViewer(){
-    const container = document.getElementById('deltaStl');
-    if(!container || typeof THREE === 'undefined') return;
-
-    const scene = new THREE.Scene();
-    scene.background = null;
-
-    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 5000);
-
-    const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
-    const isTouchDeviceEarly = window.matchMedia('(hover: none)').matches;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isTouchDeviceEarly ? 1.5 : 2));
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.domElement.style.touchAction = 'pan-y';
-    container.appendChild(renderer.domElement);
-
-    // lighting – neutral studio setup
-    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-    const key = new THREE.DirectionalLight(0xffffff, 0.9);
-    key.position.set(4, 6, 5);
-    scene.add(key);
-    const fill = new THREE.DirectionalLight(0xff3b2f, 0.25);
-    fill.position.set(-5, 2, -4);
-    scene.add(fill);
-    const rim = new THREE.DirectionalLight(0xffffff, 0.35);
-    rim.position.set(0, -4, -6);
-    scene.add(rim);
-
-    const controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 0.8;
-    // rotation only: no pan, no zoom. The STL is a reduced-detail mesh, so
-    // zooming in just exposes the low poly count, and letting the wheel dolly
-    // the camera also swallowed the page scroll while the cursor was over it.
-    controls.enablePan = false;
-    controls.enableZoom = false;
-
-    // On touch devices, dragging the model would otherwise hijack vertical
-    // page scroll. Keep it auto-rotating and non-interactive there instead
-    // of trapping the user's scroll gesture.
-    const isTouchDevice = window.matchMedia('(hover: none)').matches;
-    if(isTouchDevice){ controls.enabled = false; }
-
-    const loader = new THREE.STLLoader();
-    loader.load('assets/delta.stl', function(geometry){
-      geometry.center();
-      geometry.computeVertexNormals();
-
-      const material = new THREE.MeshStandardMaterial({
-        color: 0xff3b2f,
-        metalness: 0.3,
-        roughness: 0.45
-      });
-      const mesh = new THREE.Mesh(geometry, material);
-
-      // orient a typical fixed-wing STL (Z-up from CAD) to look natural in a Y-up viewer
-      mesh.rotation.x = -Math.PI / 2.4;
-      scene.add(mesh);
-
-      // frame camera to the model's bounding sphere
-      geometry.computeBoundingSphere();
-      const sphere = geometry.boundingSphere;
-      const dist = sphere.radius / Math.sin((camera.fov / 2) * (Math.PI / 180));
-      camera.position.set(dist * 0.9, dist * 0.55, dist * 0.9);
-      controls.target.set(0, 0, 0);
-      controls.update();
-    });
-
-    controls.addEventListener('start', ()=>{ controls.autoRotate = false; });
-
-    function onResize(){
-      const w = container.clientWidth, h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    }
-    window.addEventListener('resize', onResize);
-    new ResizeObserver(onResize).observe(container);
-
-    function animate(){
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
-    animate();
-  })();
-</script>
 
 <script>
 (function(){
@@ -1846,41 +1753,38 @@ var BASE='assets/hero-dt/';
 var HERO=document.getElementById('top');
 function $(id){return document.getElementById(id);}
 var stage=$('dtStage'), cv=$('dtCv'), cx=cv.getContext('2d'), plate=$('dtPlate'), hint=$('dtHint'), hintTxt=$('dtHintTxt'), hintBar=$('dtHintBar'), loadEl=$('dtLoad'), loadBar=$('dtLoadBar');
-var visible=true, vis=null;
+var visible=true;
 var oc=document.createElement('canvas'), ocx=oc.getContext('2d');
 var REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
 var COARSE=matchMedia('(pointer: coarse)').matches;
 var Q=new URLSearchParams(location.search);
 
-/* Lock the page from the very first frame whenever the intro is going to play,
-   so nothing can be scrolled (and no nav shows) while the video set loads. */
 var WILL_PLAY=!(REDUCE||Q.get('done')==='1'||window.scrollY>40||(location.hash&&location.hash!=='#top'));
-if(WILL_PLAY)document.documentElement.classList.add('dt-lock');
+var bootTimer=0, raf=0, mediaTime=0, mediaMovedAt=0, autoTried=false;
+var replayBtn=$('dtReplay');
 
 // ---- tuning -------------------------------------------------------------
-var CFG={hold:2.6, holdTouch:2.9, back:1.5, grace:0.14, nameAt:2.3, autoAfter:16, zoom:1.02, fallbackD:5.08, fallbackBoom:5.15};
+var CFG={hold:2.6, holdTouch:2.9, back:1.5, grace:0.14, nameAt:2.3, autoAfter:2.5, zoom:1.02, fallbackD:5.08, fallbackBoom:5.15};
 
 // ---- state ---------------------------------------------------------------
 var S=null, W=0, H=0, DPR=1, lay=null;
 var mode='loading';                 // loading | idle | burst | done
 var tpos=0, dir=0, tv=null;         // tension position (s), 0 paused / 1 fwd / -1 back, video currently shown
-var relT=0, org={x:0,y:0}, orgSet=false, manual=false, dirT=0;
+var relT=0, org={x:0,y:0}, orgSet=false, manual=false;
 var ptr={x:0,y:0,inside:false,down:false,type:'mouse'};
 var keyHold=false, autoHold=false, everActive=false, primed=false, over=false;
 var tStart=performance.now(), last=performance.now(), burstStarted=0, nameShown=false, vibStep=0;
 var embers=[];
 var bc=document.createElement('canvas'), bcx=bc.getContext('2d');   // bloom buffer
 var ac=document.createElement('canvas'), acx=ac.getContext('2d');   // aberration buffer
-var grain=[], gi=0, gT=0, lowQ=false, fpsAcc=0, fpsN=0;
+var grain=[], gi=0, gT=0, lowQ=COARSE, fpsAcc=0, fpsN=0;
 var pulse=0;
 
-function b2b(b64,mime){var bin=atob(b64),n=bin.length,u=new Uint8Array(n);for(var i=0;i<n;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:mime});}
 function clamp(v,a,b){return v<a?a:v>b?b:v;}
 function vib(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
 function ease(x){x=clamp(x,0,1);return 1-Math.pow(1-x,3);}
 
-var EXT=(function(){var v=document.createElement('video');return (v.canPlayType&&v.canPlayType('video/mp4; codecs="avc1.42E01E"'))?'mp4':'webm';})();
-var VMIME=EXT==='mp4'?'video/mp4':'video/webm';
+var EXT=document.createElement('video').canPlayType('video/mp4')?'mp4':'webm';
 var loadedBytes=0,totalBytes=0;
 function progress(){if(loadBar&&totalBytes>0)loadBar.style.transform='scaleX('+Math.min(1,loadedBytes/totalBytes).toFixed(3)+')';}
 function fetchBlob(url,mime,weight){
@@ -1900,23 +1804,26 @@ function decodeBlob(bl){
   return viaImg(bl);
 }
 function viaImg(bl){return new Promise(function(res,rej){var i=new Image();i.onload=function(){res(i);};i.onerror=rej;i.src=URL.createObjectURL(bl);});}
-function mkVideo(bl){
+function mkVideo(url){
   var v=document.createElement('video');
   v.muted=true;v.defaultMuted=true;v.playsInline=true;v.preload='auto';v.loop=false;
   v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.setAttribute('muted','');
   v.setAttribute('aria-hidden','true');v.tabIndex=-1;
   v.style.cssText='position:absolute;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
-  v.src=URL.createObjectURL(bl);
+  v.src=url;
   stage.appendChild(v);
   try{v.load();}catch(e){}
   return v;
 }
 function waitMeta(v){
-  return new Promise(function(res){
+  return new Promise(function(res,rej){
     if(v.readyState>=1)return res();
-    var done=false;function fin(){if(!done){done=true;res();}}
-    v.addEventListener('loadedmetadata',fin,{once:true});v.addEventListener('error',fin,{once:true});
-    setTimeout(fin,4000);
+    var timer=setTimeout(onError,5500);
+    function cleanup(){clearTimeout(timer);v.removeEventListener('loadedmetadata',onReady);v.removeEventListener('error',onError);}
+    function onReady(){cleanup();res();}
+    function onError(){cleanup();rej(new Error('Intro video unavailable'));}
+    v.addEventListener('loadedmetadata',onReady);
+    v.addEventListener('error',onError);
   });
 }
 function readMask(bl){
@@ -1941,10 +1848,9 @@ function loadSet(name){
     return Promise.all([decodeBlob(r[0]),readMask(r[1]),decodeBlob(r[2])]);
   }).then(function(r){
     var s={name:name,portrait:name==='mobile',f0:r[0],mask:r[1],end:r[2],fw:r[0].width,fh:r[0].height,ready:false,tf:null,tr:null,boom:null,D:5.03,bD:5.1};
-    s.more=Promise.all([fetchBlob(d+'tf.'+EXT,VMIME,1900000),fetchBlob(d+'tr.'+EXT,VMIME,1900000),fetchBlob(d+'boom.'+EXT,VMIME,1700000)]).then(function(v){
-      s.tf=mkVideo(v[0]);s.tr=mkVideo(v[1]);s.boom=mkVideo(v[2]);
-      return Promise.all([waitMeta(s.tf),waitMeta(s.tr),waitMeta(s.boom)]);
-    }).then(function(){
+    if(mode==='done')return s;
+    s.tf=mkVideo(d+'tf.'+EXT);s.tr=mkVideo(d+'tr.'+EXT);s.boom=mkVideo(d+'boom.'+EXT);
+    s.more=Promise.all([waitMeta(s.tf),waitMeta(s.tr),waitMeta(s.boom)]).then(function(){
       var D=Math.min(isFinite(s.tf.duration)?s.tf.duration:99,isFinite(s.tr.duration)?s.tr.duration:99);
       s.D=(D>1&&D<30)?D:CFG.fallbackD;
       s.bD=(isFinite(s.boom.duration)&&s.boom.duration>1)?s.boom.duration:CFG.fallbackBoom;
@@ -1955,7 +1861,7 @@ function loadSet(name){
 }
 function dropSet(s){
   if(!s)return;
-  [s.tf,s.tr,s.boom].forEach(function(v){if(!v)return;try{v.pause();URL.revokeObjectURL(v.src);v.removeAttribute('src');v.load();v.remove();}catch(e){}});
+  [s.tf,s.tr,s.boom].forEach(function(v){if(!v)return;try{v.pause();v.removeAttribute('src');v.load();v.remove();}catch(e){}});
 }
 
 function makeGrain(){
@@ -1965,10 +1871,10 @@ function makeGrain(){
     g.putImageData(id,0,0);grain.push(c);
   }
 }
-makeGrain();
+if(!COARSE)makeGrain();
 // ---- layout ---------------------------------------------------------------
 function layout(){
-  W=stage.clientWidth||innerWidth;H=stage.clientHeight||innerHeight;DPR=Math.min(window.devicePixelRatio||1,2);
+  W=stage.clientWidth||innerWidth;H=stage.clientHeight||innerHeight;DPR=Math.min(window.devicePixelRatio||1,COARSE?1:1.5);
   cv.width=oc.width=ac.width=Math.round(W*DPR);cv.height=oc.height=ac.height=Math.round(H*DPR);
   bc.width=Math.max(8,Math.round(cv.width/6));bc.height=Math.max(8,Math.round(cv.height/6));
   [cx,ocx,acx,bcx].forEach(function(c){c.imageSmoothingEnabled=true;try{c.imageSmoothingQuality='high';}catch(e){}});
@@ -2035,7 +1941,6 @@ stage.addEventListener('pointerdown',function(e){
   if(e.target.closest&&e.target.closest('.dt-btn'))return;
   setPtr(e);ptr.down=true;prime();act();
   try{stage.setPointerCapture(e.pointerId);}catch(_){}
-  if(e.pointerType==='touch')e.preventDefault();
 });
 function up(e){ptr.down=false;if(e.pointerType==='touch'){ptr.inside=false;}}
 stage.addEventListener('pointerup',up);
@@ -2048,7 +1953,7 @@ window.addEventListener('keydown',function(e){
   if(e.code==='Escape')skip();
 });
 window.addEventListener('keyup',function(e){if(e.code==='Space'||e.code==='Enter')keyHold=false;});
-$('dtSkip').addEventListener('click',function(){prime();skip();});
+$('dtSkip').addEventListener('click',skip);
 $('dtReplay').addEventListener('click',function(){replay();});
 
 // ---- tension playback (forward while held, reversed clip when released) -----------
@@ -2058,13 +1963,13 @@ function startFwd(){
   var tf=S.tf;try{S.tr.pause();}catch(e){}
   try{tf.playbackRate=S.D/holdT();}catch(e){}
   try{tf.currentTime=Math.min(tpos,S.D-0.06);}catch(e){}
-  play(tf);dir=1;dirT=performance.now();
+  play(tf);dir=1;mediaMovedAt=performance.now();mediaTime=tf.currentTime;
 }
 function startBack(){
   var tr=S.tr;try{S.tf.pause();}catch(e){}
   try{tr.playbackRate=S.D/CFG.back;}catch(e){}
   try{tr.currentTime=clamp(S.D-tpos,0,S.D-0.05);}catch(e){}
-  play(tr);dir=-1;dirT=performance.now();
+  play(tr);dir=-1;mediaMovedAt=performance.now();mediaTime=tr.currentTime;
 }
 function settle(){
   dir=0;tpos=0;tv=null;orgSet=false;manual=false;
@@ -2074,21 +1979,22 @@ function settle(){
 // ---- sequence ---------------------------------------------------------------
 function commit(){
   if(mode!=='idle')return;
-  mode='burst';burstStarted=performance.now();
+  mode='burst';burstStarted=mediaMovedAt=performance.now();mediaTime=0;
   vib([45,30,90]);
   try{S.tf.pause();S.tr.pause();}catch(e){}
   try{S.boom.currentTime=0;}catch(e){}
   var pr=S.boom.play();if(pr&&pr.catch)pr.catch(function(){goDone(false);});
   hint.classList.remove('on');
 }
-function lock(on){document.documentElement.classList.toggle('dt-lock',!!on);}
 function goDone(instant){
   if(mode==='done')return;
-  mode='done';
+  mode='done';clearTimeout(bootTimer);cancelAnimationFrame(raf);
+  loadEl.classList.add('off');
   if(S)try{S.tf&&S.tf.pause();S.tr&&S.tr.pause();S.boom&&S.boom.pause();}catch(e){}
   showPlate(instant);
-  HERO.classList.add('dt-done');lock(false);
+  HERO.classList.add('dt-done');
   hint.classList.remove('on');
+  if(S&&lay)try{render(performance.now());}catch(e){}
 }
 function showPlate(instant){
   if(nameShown)return;nameShown=true;
@@ -2096,20 +2002,15 @@ function showPlate(instant){
   void plate.offsetWidth;
   plate.classList.add('show');
 }
-function skip(){
-  if(mode==='done')return;
-  /* still loading: there is no video set yet, so end the intro directly
-     instead of leaving the page locked behind the Skip button */
-  if(!S){mode='done';loadEl.classList.add('off');showPlate(true);HERO.classList.add('dt-done');lock(false);return;}
-  goDone(true);
-}
+function skip(){goDone(true);}
 function replay(){
   if(!S||!S.ready)return;
   try{S.tf.pause();S.tr.pause();S.boom.pause();S.boom.currentTime=0;}catch(e){}
-  window.scrollTo(0,0);lock(true);
+  window.scrollTo(0,0);
   plate.classList.remove('show','instant');nameShown=false;
   HERO.classList.remove('dt-done');
-  settle();everActive=true;autoHold=false;vibStep=0;mode='idle';tStart=performance.now();
+  settle();everActive=false;autoHold=false;autoTried=false;vibStep=0;mode='idle';last=tStart=performance.now();
+  raf=requestAnimationFrame(tick);
   if(window.__dtSuppress)window.__dtSuppress=false;
 }
 
@@ -2122,7 +2023,11 @@ function update(dt,now){
     if(raw)relT=now;
     var holding=raw||(now-relT<CFG.grace*1000);
     var tf=S.tf,tr=S.tr;
-    if(dir!==0&&!manual&&now-dirT>450&&(dir===1?tf:tr).paused&&!(dir===1?tf:tr).ended){manual=true;}   // autoplay refused (e.g. low-power mode): drive time by hand
+    if(dir!==0&&!manual){
+      var playing=dir===1?tf:tr;
+      if(Math.abs(playing.currentTime-mediaTime)>0.01){mediaTime=playing.currentTime;mediaMovedAt=now;}
+      if(!playing.ended&&now-mediaMovedAt>850)manual=true;
+    }
     if(manual&&dir!==0){
       tpos=clamp(tpos+dir*dt*(dir===1?S.D/holdT():S.D/CFG.back),0,S.D);
       try{tf.currentTime=tpos;}catch(e){}
@@ -2143,15 +2048,16 @@ function update(dt,now){
       else if(dir!==-1&&tpos>0.04)startBack();
       else if(dir===1&&tpos<=0.04)settle();
     }
-    if(!everActive&&!autoHold&&(now-tStart)/1000>CFG.autoAfter)autoHold=true;
+    if(!autoTried&&(now-tStart)/1000>CFG.autoAfter){autoTried=true;if(!everActive||!holding)autoHold=true;}
+    if(now-tStart>9500)goDone(false);
     var st=Math.floor(tpos/S.D*4);
     if(st>vibStep&&holding)vib(14);
     vibStep=st;
   }else if(mode==='burst'){
     var bm=S.boom;
     if(!nameShown&&bm.currentTime>=CFG.nameAt)showPlate(false);
-    if(bm.ended||bm.currentTime>=S.bD-0.04)goDone(false);
-    if(now-burstStarted>12000)goDone(false);
+    if(bm.currentTime>mediaTime+0.01){mediaTime=bm.currentTime;mediaMovedAt=now;}
+    if(bm.ended||bm.currentTime>=S.bD-0.04||now-mediaMovedAt>1800||now-burstStarted>8000)goDone(false);
   }
   var want=mode==='done'?30:(mode==='idle'?(12+Math.round(26*Math.pow(clamp(tpos/(S.D||5),0,1),1.3))):0);
   while(embers.length<want)embers.push({x:Math.random(),y:Math.random(),v:0.015+Math.random()*0.04,r:0.6+Math.random()*1.4,ph:Math.random()*6.28,a:0.2+Math.random()*0.5});
@@ -2225,7 +2131,7 @@ function render(now){dtRaw=window.__dtRaw||0;
     tx=noise(t,47)*ab;ty=noise(t+4,53)*ab;
     camOn(cx,tx,ty,k);
     drawImg(cx,S.f0,1);
-    drawImg(cx,S.tf,1);                                   // last tension frame (held)
+    if(S.tf.readyState>=2)drawImg(cx,S.tf,1);
     if(bm.readyState>=2&&!bm.seeking){
       var Rb=fullR(org.x,org.y),rr=tb<0.55?Rb*ease(tb/0.55):Rb;
       drawHot(bm,rr,Rb,org.x,org.y,tx,ty,k);
@@ -2318,55 +2224,52 @@ function render(now){dtRaw=window.__dtRaw||0;
 }
 
 function tick(now){
-  requestAnimationFrame(tick);
+  if(mode==='done')return;
+  raf=requestAnimationFrame(tick);
   var dtRaw=(now-last)/1000;var dt=Math.min(0.05,dtRaw);last=now;window.__dtRaw=dtRaw;
   if(!S||!visible||document.hidden)return;
-  update(dt,now);render(now);
+  try{update(dt,now);if(mode!=='done')render(now);}catch(err){fail(err);}
 }
 
 // ---- boot ---------------------------------------------------------------------
-var swapT=0, booted=false;
-function begin(s){
-  if(!s.ready||mode==='done')return;
-  var skipNow=REDUCE||Q.get('done')==='1'||window.scrollY>40||(location.hash&&location.hash!=='#top'&&location.hash!=='');
-  if(skipNow){goDone(true);return;}
-  lock(true);
-  if(Q.get('auto')==='1'){autoHold=true;everActive=false;}
-}
 function fail(err){
-  console.error('hero intro failed',err);
-  loadEl.classList.add('off');
-  if(!S){mode='done';}
-  try{goDone(true);}catch(e){}
-  HERO.classList.add('dt-done');lock(false);
+  console.warn('Hero intro unavailable',err);
+  goDone(true);
 }
 function start(name){
-  loadEl.classList.remove('off');
-  return loadSet(name).then(function(s){
-    dropSet(S);S=s;layout();
-    dir=0;tpos=0;tv=null;orgSet=false;manual=false;
-    mode='idle';tStart=performance.now();
-    plate.classList.remove('show','instant');nameShown=false;
-    HERO.classList.remove('dt-done');
-    return s.more.then(function(){loadEl.classList.add('off');begin(s);});
-  }).catch(fail);
-}
-new ResizeObserver(function(){
-  layout();
-  clearTimeout(swapT);
-  swapT=setTimeout(function(){
-    if(S&&S.ready&&wantSet()!==S.name&&mode!=='burst'){
-      var wasDone=(mode==='done');
-      mode='loading';
-      start(wantSet()).then(function(){if(wasDone&&mode!=='done')goDone(true);});
+  bootTimer=setTimeout(skip,6000);
+  loadSet(name).then(function(s){
+    S=s;layout();
+    if(mode==='done'){
+      render(performance.now());
+      if(!s.more)return;
     }
-  },350);
-}).observe(stage);
+    return s.more.then(function(){
+      clearTimeout(bootTimer);
+      loadEl.classList.add('off');
+      replayBtn.hidden=false;
+      if(mode==='done')return;
+      if(document.hidden||window.scrollY>40){skip();return;}
+      mode='idle';tStart=performance.now();
+      if(Q.get('auto')==='1')autoHold=true;
+    });
+  }).catch(function(err){dropSet(S);fail(err);});
+}
+function resizeHero(){
+  layout();
+  if(S&&mode==='done')try{render(performance.now());}catch(e){}
+}
+if('ResizeObserver' in window)new ResizeObserver(resizeHero).observe(stage);
+else window.addEventListener('resize',resizeHero);
+window.addEventListener('scroll',function(){if(mode!=='done'&&window.scrollY>80)skip();},{passive:true});
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden&&mode==='burst')skip();
+  if(document.hidden){keyHold=false;ptr.down=false;ptr.inside=false;}
+});
 if('IntersectionObserver' in window){
   new IntersectionObserver(function(en){
     visible=en[0].isIntersecting;
-    if(!visible&&S&&S.boom&&mode==='burst'){try{S.boom.pause();}catch(e){}}
-    if(visible&&S&&S.boom&&mode==='burst'){try{S.boom.play();}catch(e){}}
+    if(!visible&&mode!=='done'&&window.scrollY>40)skip();
   },{threshold:0.02}).observe(HERO);
 }
 window.__dt={
@@ -2375,8 +2278,9 @@ window.__dt={
   toScr:function(u,v){return {x:lay.x+u*lay.w,y:lay.y+v*lay.h};},
   hit:function(x,y){return hit(x,y,0);},replay:replay,skip:skip
 };
+if(!WILL_PLAY||!cx||!ocx||!bcx||!acx){skip();return;}
 layout();
-requestAnimationFrame(tick);
+raf=requestAnimationFrame(tick);
 start(wantSet());
 })();
 
@@ -2388,6 +2292,121 @@ start(wantSet());
   });
 })();
 </script>
+<script>
+  // --- Delta Wing STL viewer ---
+  function initDeltaViewer(){
+    const container = document.getElementById('deltaStl');
+    if(!container || typeof THREE === 'undefined') return;
+    let visible = true;
+    if ('IntersectionObserver' in window) new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(container);
+
+    const scene = new THREE.Scene();
+    scene.background = null;
+
+    const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 5000);
+
+    const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+    const isTouchDeviceEarly = window.matchMedia('(hover: none)').matches;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, isTouchDeviceEarly ? 1.5 : 2));
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.domElement.style.touchAction = 'pan-y';
+    container.appendChild(renderer.domElement);
+
+    // lighting – neutral studio setup
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 0.9);
+    key.position.set(4, 6, 5);
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0xff3b2f, 0.25);
+    fill.position.set(-5, 2, -4);
+    scene.add(fill);
+    const rim = new THREE.DirectionalLight(0xffffff, 0.35);
+    rim.position.set(0, -4, -6);
+    scene.add(rim);
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.8;
+    // rotation only: no pan, no zoom. The STL is a reduced-detail mesh, so
+    // zooming in just exposes the low poly count, and letting the wheel dolly
+    // the camera also swallowed the page scroll while the cursor was over it.
+    controls.enablePan = false;
+    controls.enableZoom = false;
+
+    // On touch devices, dragging the model would otherwise hijack vertical
+    // page scroll. Keep it auto-rotating and non-interactive there instead
+    // of trapping the user's scroll gesture.
+    const isTouchDevice = window.matchMedia('(hover: none)').matches;
+    if(isTouchDevice){ controls.enabled = false; }
+
+    const loader = new THREE.STLLoader();
+    loader.load('assets/delta.stl', function(geometry){
+      geometry.center();
+      geometry.computeVertexNormals();
+
+      const material = new THREE.MeshStandardMaterial({
+        color: 0xff3b2f,
+        metalness: 0.3,
+        roughness: 0.45
+      });
+      const mesh = new THREE.Mesh(geometry, material);
+
+      // orient a typical fixed-wing STL (Z-up from CAD) to look natural in a Y-up viewer
+      mesh.rotation.x = -Math.PI / 2.4;
+      scene.add(mesh);
+
+      // frame camera to the model's bounding sphere
+      geometry.computeBoundingSphere();
+      const sphere = geometry.boundingSphere;
+      const dist = sphere.radius / Math.sin((camera.fov / 2) * (Math.PI / 180));
+      camera.position.set(dist * 0.9, dist * 0.55, dist * 0.9);
+      controls.target.set(0, 0, 0);
+      controls.update();
+    });
+
+    controls.addEventListener('start', ()=>{ controls.autoRotate = false; });
+
+    function onResize(){
+      const w = container.clientWidth, h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+    window.addEventListener('resize', onResize);
+    new ResizeObserver(onResize).observe(container);
+
+    function animate(){
+      requestAnimationFrame(animate);
+      if (!visible || document.hidden) return;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  }
+  function loadDeltaViewer(){
+    const base = 'https://cdn.jsdelivr.net/npm/three@0.128.0/';
+    const paths = ['build/three.min.js','examples/js/loaders/STLLoader.js','examples/js/controls/OrbitControls.js'];
+    paths.reduce((pending, path) => pending.then(() => new Promise((resolve,reject) => {
+      const script = document.createElement('script');
+      script.onload = resolve;
+      script.onerror = reject;
+      script.src = base + path;
+      document.head.appendChild(script);
+    })), Promise.resolve()).then(initDeltaViewer).catch(() => {});
+  }
+  const viewer = document.getElementById('deltaStl');
+  if ('IntersectionObserver' in window && viewer) {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      loadDeltaViewer();
+    }, {rootMargin:'250px'});
+    observer.observe(viewer);
+  } else window.addEventListener('load',loadDeltaViewer,{once:true});
+</script>
+
 
 <script>
   // mobile nav toggle
