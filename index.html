@@ -165,6 +165,12 @@
   .hero-dt.dt-done .dt-stage{ background-image:url('assets/hero-dt/desktop/end.webp'); }
   @media (orientation:portrait){ .hero-dt.dt-done .dt-stage{ background-image:url('assets/hero-dt/mobile/end.webp'); } }
   .dt-cv{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+  .dt-burst-video{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+    z-index:1; opacity:0; pointer-events:none; transition:opacity .28s ease;
+  }
+  .dt-burst-video.on{ opacity:1; }
+  .dt-burst-video::-webkit-media-controls{ display:none !important; }
   .dt-load, .dt-hint{
     position:absolute; left:0; right:0; z-index:2; pointer-events:none;
     bottom:calc(8% + env(safe-area-inset-bottom,0px));
@@ -1840,12 +1846,13 @@ function decodeBlob(bl){
   return viaImg(bl);
 }
 function viaImg(bl){return new Promise(function(res,rej){var i=new Image();i.onload=function(){res(i);};i.onerror=rej;i.src=URL.createObjectURL(bl);});}
-function mkVideo(blob){
+function mkVideo(blob,nativeBurst){
   var v=document.createElement('video');
   v.muted=true;v.defaultMuted=true;v.playsInline=true;v.preload='auto';v.loop=false;
   v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.setAttribute('muted','');
   v.setAttribute('aria-hidden','true');v.tabIndex=-1;
-  v.style.cssText='position:absolute;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
+  if(nativeBurst)v.className='dt-burst-video';
+  else v.style.cssText='position:absolute;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
   v.src=URL.createObjectURL(blob);
   stage.appendChild(v);
   try{v.load();}catch(e){}
@@ -1885,13 +1892,17 @@ function loadSet(name,version){
   }).then(function(r){
     var s={name:name,portrait:name==='mobile',f0:r[0],mask:r[1],end:r[2],fw:r[0].width,fh:r[0].height,ready:false,tf:null,tr:null,boom:null,D:5.03,bD:5.1};
     if(mode==='done'||version!==loadVersion)return s;
+    s.nativeBurst=COARSE||s.portrait;
     s.more=Promise.all([
       fetchBlob(d+'tf.'+EXT,VMIME,1900000),
       fetchBlob(d+'tr.'+EXT,VMIME,1900000),
       fetchBlob(d+'boom.'+EXT,VMIME,1700000)
     ]).then(function(clips){
       if(version!==loadVersion||mode==='done')return false;
-      s.tf=mkVideo(clips[0]);s.tr=mkVideo(clips[1]);s.boom=mkVideo(clips[2]);
+      s.tf=mkVideo(clips[0]);s.tr=mkVideo(clips[1]);s.boom=mkVideo(clips[2],s.nativeBurst);
+      s.boom.addEventListener('timeupdate',function(){
+        if(S===s&&mode==='burst'&&s.boom.currentTime>=2.3)showPlate(false);
+      });
       s.boom.addEventListener('ended',function(){if(S===s&&mode==='burst')goDone(false);});
       return Promise.all([waitMeta(s.tf),waitMeta(s.tr),waitMeta(s.boom)]);
     }).then(function(metadata){
@@ -2027,6 +2038,7 @@ function commit(){
   try{S.tf.pause();S.tr.pause();}catch(e){}
   try{S.boom.currentTime=0;}catch(e){}
   var boom=S.boom;
+  if(S.nativeBurst)boom.classList.add('on');
   burstTimer=setTimeout(function(){
     if(mode==='burst'&&S&&S.boom===boom)goDone(false);
   },Math.max(8500,(S.bD+3)*1000));
@@ -2039,6 +2051,7 @@ function goDone(instant){
   mode='done';clearTimeout(bootTimer);clearTimeout(burstTimer);cancelAnimationFrame(raf);
   loadEl.classList.add('off');
   if(S)try{S.tf&&S.tf.pause();S.tr&&S.tr.pause();S.boom&&S.boom.pause();}catch(e){}
+  if(S&&S.nativeBurst&&S.boom)S.boom.classList.remove('on');
   showPlate(instant);
   HERO.classList.add('dt-done');
   if(instant)unlockPortfolio();
@@ -2295,7 +2308,10 @@ function tick(now){
   raf=requestAnimationFrame(tick);
   var dtRaw=(now-last)/1000;var dt=Math.min(0.05,dtRaw);last=now;window.__dtRaw=dtRaw;
   if(!S||!visible||document.hidden)return;
-  try{update(dt,now);if(mode!=='done')render(now);}catch(err){fail(err);}
+  try{
+    update(dt,now);
+    if(mode!=='done'&&!(mode==='burst'&&S.nativeBurst))render(now);
+  }catch(err){fail(err);}
 }
 
 // ---- boot ---------------------------------------------------------------------
