@@ -159,6 +159,8 @@
   .hero-dt.dt-done .dt-stage{ touch-action:pan-y; cursor:default; }
   .dt-stage{ background:#000 url('assets/hero-dt/desktop/f0.webp') center / cover no-repeat; }
   @media (orientation:portrait){ .dt-stage{ background-image:url('assets/hero-dt/mobile/f0.webp'); } }
+  .hero-dt.dt-done .dt-stage{ background-image:url('assets/hero-dt/desktop/end.webp'); }
+  @media (orientation:portrait){ .hero-dt.dt-done .dt-stage{ background-image:url('assets/hero-dt/mobile/end.webp'); } }
   .dt-cv{ position:absolute; inset:0; width:100%; height:100%; display:block; }
   .dt-load, .dt-hint{
     position:absolute; left:0; right:0; z-index:2; pointer-events:none;
@@ -196,15 +198,6 @@
   .dt-plate.show h1{ opacity:1; filter:blur(0); transform:none; letter-spacing:0.34em; text-indent:0.34em; }
   .dt-plate.show .role{ opacity:1; filter:blur(0); }
   .dt-plate.instant *{ transition:none !important; }
-  @media (prefers-reduced-motion:no-preference){
-    .hero-dt.dt-first .dt-plate h1,.hero-dt.dt-first .dt-plate .role{
-      animation:dt-first-reveal 650ms ease-out both;
-    }
-  }
-  @keyframes dt-first-reveal{
-    from{ opacity:.55; transform:translateY(8px); }
-    to{ opacity:1; transform:none; }
-  }
   .dt-scroll{
     position:absolute; left:50%; z-index:2; transform:translateX(-50%);
     bottom:calc(5.5% + env(safe-area-inset-bottom,0px));
@@ -1314,15 +1307,15 @@ nav.links a i{ font-style:normal; color:var(--red); font-size:9.5px; margin-righ
   </div>
 </div>
 
-<section class="hero-dt dt-done dt-first" id="top">
+<section class="hero-dt" id="top">
   <div class="dt-stage" id="dtStage" tabindex="0" role="application" aria-label="Interactive intro. Press and hold on the DT logo, or hold Space, to break it. Use the Skip button to go straight to the site.">
     <canvas class="dt-cv" id="dtCv"></canvas>
-    <div class="dt-plate show" id="dtPlate">
+    <div class="dt-plate" id="dtPlate">
       <h1><span>Danijel</span> <span>Tupajić</span></h1>
       <div class="role"><span class="sq"></span>Software &amp; AI Developer · 3D Designer</div>
     </div>
     <div class="dt-hint" id="dtHint"><span id="dtHintTxt">Hold your cursor on the DT</span><span class="dt-bar"><b id="dtHintBar"></b></span></div>
-    <div class="dt-load off" id="dtLoad">Loading<span class="dt-bar"><b id="dtLoadBar"></b></span></div>
+    <div class="dt-load" id="dtLoad">Loading<span class="dt-bar"><b id="dtLoadBar"></b></span></div>
   </div>
   <a class="dt-scroll" href="#about" aria-label="Scroll to content">Scroll<i></i></a>
   <button class="dt-btn skip" id="dtSkip" type="button">Skip intro</button>
@@ -1793,16 +1786,16 @@ var bootTimer=0, loadVersion=0, raf=0, mediaTime=0, mediaMovedAt=0, autoTried=fa
 var replayBtn=$('dtReplay');
 
 // ---- tuning -------------------------------------------------------------
-var CFG={hold:2.6, holdTouch:2.9, back:1.5, grace:0.14, nameAt:2.3, autoAfter:2.5, zoom:1.02, fallbackD:5.08, fallbackBoom:5.15};
+var CFG={hold:2.6, holdTouch:2.9, back:1.5, grace:0.14, autoAfter:2.5, zoom:1.02, fallbackD:5.08, fallbackBoom:5.15};
 
 // ---- state ---------------------------------------------------------------
 var S=null, W=0, H=0, DPR=1, lay=null;
-var mode='done';                 // loading | idle | burst | done
+var mode='loading';                 // loading | idle | burst | done
 var tpos=0, dir=0, tv=null;         // tension position (s), 0 paused / 1 fwd / -1 back, video currently shown
 var relT=0, org={x:0,y:0}, orgSet=false, manual=false;
 var ptr={x:0,y:0,inside:false,down:false,type:'mouse'};
 var keyHold=false, autoHold=false, everActive=false, primed=false, over=false;
-var tStart=performance.now(), last=performance.now(), burstStarted=0, nameShown=true, vibStep=0;
+var tStart=performance.now(), last=performance.now(), burstStarted=0, nameShown=false, vibStep=0;
 var embers=[];
 var bc=document.createElement('canvas'), bcx=bc.getContext('2d');   // bloom buffer
 var ac=document.createElement('canvas'), acx=ac.getContext('2d');   // aberration buffer
@@ -2033,7 +2026,6 @@ function showPlate(instant){
 function skip(){goDone(true);}
 function replay(){
   if(mode!=='done'||!cx||!ocx||!bcx||!acx)return;
-  HERO.classList.remove('dt-first');
   if(!COARSE&&!grain.length)makeGrain();
   window.scrollTo({top:0,left:0,behavior:'instant'});
   if(!S||!S.ready){
@@ -2094,7 +2086,6 @@ function update(dt,now){
     vibStep=st;
   }else if(mode==='burst'){
     var bm=S.boom;
-    if(!nameShown&&bm.currentTime>=CFG.nameAt)showPlate(false);
     if(bm.currentTime>mediaTime+0.01){mediaTime=bm.currentTime;mediaMovedAt=now;}
     if(bm.ended||bm.currentTime>=S.bD-0.04||now-mediaMovedAt>1800||now-burstStarted>8000)goDone(false);
   }
@@ -2275,7 +2266,7 @@ function fail(err){
   console.warn('Hero intro unavailable',err);
   goDone(true);
 }
-function start(name){
+function start(name,autoplay){
   var version=++loadVersion;
   bootTimer=setTimeout(skip,6000);
   loadSet(name,version).then(function(s){
@@ -2294,7 +2285,7 @@ function start(name){
       if(document.hidden||window.scrollY>40){skip();return;}
       plate.classList.remove('show','instant');nameShown=false;
       mode='idle';tStart=performance.now();
-      if(Q.get('auto')==='1')autoHold=true;
+      if(autoplay||Q.get('auto')==='1')autoHold=true;
     });
   }).catch(function(err){if(version!==loadVersion)return;dropSet(S);if(S)S.ready=false;fail(err);});
 }
@@ -2321,8 +2312,20 @@ window.__dt={
   toScr:function(u,v){return {x:lay.x+u*lay.w,y:lay.y+v*lay.h};},
   hit:function(x,y){return hit(x,y,0);},replay:replay,skip:skip
 };
-if(!cx||!ocx||!bcx||!acx)replayBtn.hidden=true;
-else layout();
+if(!cx||!ocx||!bcx||!acx){
+  replayBtn.hidden=true;
+  skip();
+}else if(matchMedia('(prefers-reduced-motion: reduce)').matches||Q.get('done')==='1'||
+         window.scrollY>40||(location.hash&&location.hash!=='#top')){
+  skip();
+}else{
+  try{
+    if(!COARSE)makeGrain();
+    layout();
+    raf=requestAnimationFrame(tick);
+    start(wantSet(),true);
+  }catch(err){fail(err);}
+}
 })();
 
 
