@@ -80,10 +80,13 @@
     transition:opacity .9s ease .25s, transform .9s cubic-bezier(.2,.7,.2,1) .25s;
   }
   /* while the DT intro is running the page is locked: no nav, no scroll */
-  html.dt-lock header.site{
-    opacity:0; transform:translateY(-14px); pointer-events:none;
-    transition:opacity .3s ease, transform .3s ease;
+  html.dt-lock, html.dt-lock body{ overflow:hidden; overscroll-behavior:none; }
+  html.dt-lock header.site, html.dt-lock #rail, html.dt-lock #navOverlay{
+    visibility:hidden; pointer-events:none;
   }
+  html.dt-lock .dt-stage{ touch-action:none; }
+  html.dt-lock .dt-scroll, html.dt-lock #dtReplay{ visibility:hidden; pointer-events:none; }
+  html.dt-lock #dtSkip:not(:focus-visible){ opacity:0; pointer-events:none; }
   header.site .brand{
     font-family:'Archivo', sans-serif; font-weight:800; font-size:15px; letter-spacing:0.02em;
   }
@@ -2022,9 +2025,21 @@ function goDone(instant){
   if(S)try{S.tf&&S.tf.pause();S.tr&&S.tr.pause();S.boom&&S.boom.pause();}catch(e){}
   showPlate(instant);
   HERO.classList.add('dt-done');
+  if(instant)unlockPortfolio();
+  else if(document.documentElement.classList.contains('dt-lock')){
+    revealTimer=setTimeout(unlockPortfolio,3300);
+  }
   hint.classList.remove('on');
   if(S&&lay)try{render(performance.now());}catch(e){}
 }
+var revealTimer=0;
+function unlockPortfolio(){
+  clearTimeout(revealTimer);
+  document.documentElement.classList.remove('dt-lock');
+}
+plate.querySelector('h1').addEventListener('transitionend',function(e){
+  if(e.propertyName==='opacity'&&mode==='done')unlockPortfolio();
+});
 function showPlate(instant){
   if(nameShown)return;nameShown=true;
   if(instant)plate.classList.add('instant');
@@ -2036,6 +2051,7 @@ function replay(){
   if(mode!=='done'||!cx||!ocx||!bcx||!acx)return;
   if(!COARSE&&!grain.length)makeGrain();
   window.scrollTo({top:0,left:0,behavior:'instant'});
+  document.documentElement.classList.add('dt-lock');
   if(!S||!S.ready){
     mode='loading';
     loadEl.classList.remove('off');
@@ -2299,7 +2315,11 @@ function resizeHero(){
 }
 if('ResizeObserver' in window)new ResizeObserver(resizeHero).observe(stage);
 else window.addEventListener('resize',resizeHero);
-window.addEventListener('scroll',function(){if(mode!=='done'&&window.scrollY>80)skip();},{passive:true});
+window.addEventListener('scroll',function(){
+  if(document.documentElement.classList.contains('dt-lock')&&window.scrollY>0){
+    window.scrollTo({top:0,left:0,behavior:'instant'});
+  }
+},{passive:true});
 document.addEventListener('visibilitychange',function(){
   if(document.hidden&&mode==='burst')skip();
   if(document.hidden){keyHold=false;ptr.down=false;ptr.inside=false;}
@@ -2307,7 +2327,6 @@ document.addEventListener('visibilitychange',function(){
 if('IntersectionObserver' in window){
   new IntersectionObserver(function(en){
     visible=en[0].isIntersecting;
-    if(!visible&&mode!=='done'&&window.scrollY>40)skip();
   },{threshold:0.02}).observe(HERO);
 }
 window.__dt={
@@ -2324,6 +2343,7 @@ if(!cx||!ocx||!bcx||!acx){
   skip();
 }else{
   try{
+    document.documentElement.classList.add('dt-lock');
     if(!COARSE)makeGrain();
     layout();
     raf=requestAnimationFrame(tick);
