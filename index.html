@@ -1794,7 +1794,7 @@ var oc=document.createElement('canvas'), ocx=oc.getContext('2d');
 var COARSE=matchMedia('(pointer: coarse)').matches;
 var Q=new URLSearchParams(location.search);
 
-var bootTimer=0, loadVersion=0, raf=0, mediaTime=0, mediaMovedAt=0;
+var bootTimer=0, burstTimer=0, loadVersion=0, raf=0, mediaTime=0, mediaMovedAt=0;
 var replayBtn=$('dtReplay');
 
 // ---- tuning -------------------------------------------------------------
@@ -1818,7 +1818,9 @@ function clamp(v,a,b){return v<a?a:v>b?b:v;}
 function vib(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
 function ease(x){x=clamp(x,0,1);return 1-Math.pow(1-x,3);}
 
-var EXT=document.createElement('video').canPlayType('video/mp4')?'mp4':'webm';
+var EXT=(function(){var v=document.createElement('video');return (v.canPlayType&&v.canPlayType('video/mp4; codecs="avc1.42E01E"'))?'mp4':'webm';})();
+var VMIME=EXT==='mp4'?'video/mp4':'video/webm';
+
 var loadedBytes=0,totalBytes=0;
 function progress(){if(loadBar&&totalBytes>0)loadBar.style.transform='scaleX('+Math.min(1,loadedBytes/totalBytes).toFixed(3)+')';}
 function fetchBlob(url,mime,weight){
@@ -1838,13 +1840,13 @@ function decodeBlob(bl){
   return viaImg(bl);
 }
 function viaImg(bl){return new Promise(function(res,rej){var i=new Image();i.onload=function(){res(i);};i.onerror=rej;i.src=URL.createObjectURL(bl);});}
-function mkVideo(url){
+function mkVideo(blob){
   var v=document.createElement('video');
   v.muted=true;v.defaultMuted=true;v.playsInline=true;v.preload='auto';v.loop=false;
   v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');v.setAttribute('muted','');
   v.setAttribute('aria-hidden','true');v.tabIndex=-1;
   v.style.cssText='position:absolute;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
-  v.src=url;
+  v.src=URL.createObjectURL(blob);
   stage.appendChild(v);
   try{v.load();}catch(e){}
   return v;
@@ -1883,8 +1885,17 @@ function loadSet(name,version){
   }).then(function(r){
     var s={name:name,portrait:name==='mobile',f0:r[0],mask:r[1],end:r[2],fw:r[0].width,fh:r[0].height,ready:false,tf:null,tr:null,boom:null,D:5.03,bD:5.1};
     if(mode==='done'||version!==loadVersion)return s;
-    s.tf=mkVideo(d+'tf.'+EXT);s.tr=mkVideo(d+'tr.'+EXT);s.boom=mkVideo(d+'boom.'+EXT);
-    s.more=Promise.all([waitMeta(s.tf),waitMeta(s.tr),waitMeta(s.boom)]).then(function(){
+    s.more=Promise.all([
+      fetchBlob(d+'tf.'+EXT,VMIME,1900000),
+      fetchBlob(d+'tr.'+EXT,VMIME,1900000),
+      fetchBlob(d+'boom.'+EXT,VMIME,1700000)
+    ]).then(function(clips){
+      if(version!==loadVersion||mode==='done')return false;
+      s.tf=mkVideo(clips[0]);s.tr=mkVideo(clips[1]);s.boom=mkVideo(clips[2]);
+      s.boom.addEventListener('ended',function(){if(S===s&&mode==='burst')goDone(false);});
+      return Promise.all([waitMeta(s.tf),waitMeta(s.tr),waitMeta(s.boom)]);
+    }).then(function(metadata){
+      if(!metadata)return s;
       var D=Math.min(isFinite(s.tf.duration)?s.tf.duration:99,isFinite(s.tr.duration)?s.tr.duration:99);
       s.D=(D>1&&D<30)?D:CFG.fallbackD;
       s.bD=(isFinite(s.boom.duration)&&s.boom.duration>1)?s.boom.duration:CFG.fallbackBoom;
@@ -1895,7 +1906,7 @@ function loadSet(name,version){
 }
 function dropSet(s){
   if(!s)return;
-  [s.tf,s.tr,s.boom].forEach(function(v){if(!v)return;try{v.pause();v.removeAttribute('src');v.load();v.remove();}catch(e){}});
+  [s.tf,s.tr,s.boom].forEach(function(v){if(!v)return;try{v.pause();URL.revokeObjectURL(v.src);v.removeAttribute('src');v.load();v.remove();}catch(e){}});
 }
 
 function makeGrain(){
@@ -2015,24 +2026,29 @@ function commit(){
   vib([45,30,90]);
   try{S.tf.pause();S.tr.pause();}catch(e){}
   try{S.boom.currentTime=0;}catch(e){}
-  var pr=S.boom.play();if(pr&&pr.catch)pr.catch(function(){goDone(false);});
+  var boom=S.boom;
+  burstTimer=setTimeout(function(){
+    if(mode==='burst'&&S&&S.boom===boom)goDone(false);
+  },Math.max(8500,(S.bD+3)*1000));
+  var pr=boom.play();
+  if(pr&&pr.catch)pr.catch(function(){if(mode==='burst'&&S&&S.boom===boom)goDone(false);});
   hint.classList.remove('on');
 }
 function goDone(instant){
   if(mode==='done')return;
-  mode='done';clearTimeout(bootTimer);cancelAnimationFrame(raf);
+  mode='done';clearTimeout(bootTimer);clearTimeout(burstTimer);cancelAnimationFrame(raf);
   loadEl.classList.add('off');
   if(S)try{S.tf&&S.tf.pause();S.tr&&S.tr.pause();S.boom&&S.boom.pause();}catch(e){}
   showPlate(instant);
   HERO.classList.add('dt-done');
   if(instant)unlockPortfolio();
   else if(document.documentElement.classList.contains('dt-lock')){
-    revealTimer=setTimeout(unlockPortfolio,3300);
+    revealTimer=setTimeout(unlockPortfolio,Math.max(0,3300-(performance.now()-revealedAt)));
   }
   hint.classList.remove('on');
   if(S&&lay)try{render(performance.now());}catch(e){}
 }
-var revealTimer=0;
+var revealTimer=0, revealedAt=0;
 function unlockPortfolio(){
   clearTimeout(revealTimer);
   document.documentElement.classList.remove('dt-lock');
@@ -2041,7 +2057,7 @@ plate.querySelector('h1').addEventListener('transitionend',function(e){
   if(e.propertyName==='opacity'&&mode==='done')unlockPortfolio();
 });
 function showPlate(instant){
-  if(nameShown)return;nameShown=true;
+  if(nameShown)return;nameShown=true;revealedAt=performance.now();
   if(instant)plate.classList.add('instant');
   void plate.offsetWidth;
   plate.classList.add('show');
@@ -2108,8 +2124,8 @@ function update(dt,now){
     vibStep=st;
   }else if(mode==='burst'){
     var bm=S.boom;
-    if(bm.currentTime>mediaTime+0.01){mediaTime=bm.currentTime;mediaMovedAt=now;}
-    if(bm.ended||bm.currentTime>=S.bD-0.04||now-mediaMovedAt>1800||now-burstStarted>8000)goDone(false);
+    if(!nameShown&&bm.currentTime>=2.3)showPlate(false);
+    if(bm.ended)goDone(false);
   }
   var want=mode==='done'?30:(mode==='idle'?(12+Math.round(26*Math.pow(clamp(tpos/(S.D||5),0,1),1.3))):0);
   while(embers.length<want)embers.push({x:Math.random(),y:Math.random(),v:0.015+Math.random()*0.04,r:0.6+Math.random()*1.4,ph:Math.random()*6.28,a:0.2+Math.random()*0.5});
@@ -2289,10 +2305,10 @@ function fail(err){
 }
 function start(name){
   var version=++loadVersion;
-  bootTimer=setTimeout(skip,6000);
+  bootTimer=setTimeout(skip,12000);
   loadSet(name,version).then(function(s){
     if(version!==loadVersion)return;
-    dropSet(S);S=s;layout();
+    dropSet(S);S=s;primed=false;layout();
     if(mode==='done'){
       render(performance.now());
       if(!s.more)return;
@@ -2302,7 +2318,7 @@ function start(name){
       clearTimeout(bootTimer);
       loadEl.classList.add('off');
       replayBtn.hidden=false;
-      if(mode==='done')return;
+      if(mode==='done'||!s.ready)return;
       if(document.hidden||window.scrollY>40){skip();return;}
       plate.classList.remove('show','instant');nameShown=false;
       mode='idle';tStart=performance.now();
