@@ -755,6 +755,12 @@
 
   /* ---------- stack (spec sheet) ---------- */
   .spec-sheet{ border-top:1px solid var(--rule-strong); }
+  #stack .spec-sheet .grp{ grid-template-columns:minmax(120px, 29%) minmax(0, 1fr); gap:18px; }
+  #stack .spec-sheet .cat{ margin:3px 0 0; font-weight:500; line-height:1.5; }
+  #stack .stack-use{ margin:0 0 9px; color:var(--ink-dim); font-size:.92rem; line-height:1.5; }
+  #stack .spec-sheet .items{ gap:8px 18px; }
+  @media (max-width:700px){ #stack .spec-sheet .grp{ grid-template-columns:1fr; gap:9px; } }
+
   .spec-sheet .grp{ border-bottom:1px solid var(--rule); padding:26px 0; display:grid; grid-template-columns:220px 1fr; gap:24px; }
   @media (max-width:700px){ .spec-sheet .grp{ grid-template-columns:1fr; gap:12px; } }
   .spec-sheet .grp .cat{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--red); }
@@ -1685,16 +1691,32 @@ nav.links a i{ font-style:normal; color:var(--red); font-size:9.5px; margin-righ
     <div class="digitize-row">
       <div class="spec-sheet reveal">
         <div class="grp">
-          <div class="cat">Frontend</div>
-          <div class="items"><span>React / Next.js</span><span>TypeScript</span><span>Tailwind CSS</span></div>
+          <h3 class="cat">Software &amp; Backend</h3>
+          <div>
+            <p class="stack-use">APIs, databases and real-time systems.</p>
+            <div class="items"><span>Python</span><span>FastAPI</span><span>Flask</span><span>WebSockets</span><span>Supabase</span></div>
+          </div>
         </div>
         <div class="grp">
-          <div class="cat">3D &amp; Motion</div>
-          <div class="items"><span>Three.js / R3F</span><span>GSAP · ScrollTrigger</span><span>WebGL Shaders</span><span>Yjs (Real-time)</span></div>
+          <h3 class="cat">AI &amp; Computer Vision</h3>
+          <div>
+            <p class="stack-use">Live object detection in Argus AI and issue retrieval in BugTrace.</p>
+            <div class="items"><span>YOLO</span><span>OpenCV</span><span>BM25</span></div>
+          </div>
         </div>
         <div class="grp">
-          <div class="cat">Engineering</div>
-          <div class="items"><span>Fusion 360</span><span>Bambu Lab</span><span>FDM Printing</span></div>
+          <h3 class="cat">Web &amp; Interactive 3D</h3>
+          <div>
+            <p class="stack-use">Web applications, real-time collaboration and interactive 3D experiences.</p>
+            <div class="items"><span>React / Next.js</span><span>TypeScript</span><span>Tailwind CSS</span><span>Three.js / R3F</span><span>WebGL Shaders</span><span>GSAP / ScrollTrigger</span><span>Yjs</span></div>
+          </div>
+        </div>
+        <div class="grp">
+          <h3 class="cat">CAD &amp; Prototyping</h3>
+          <div>
+            <p class="stack-use">From CAD models to 3D-printed drone airframes.</p>
+            <div class="items"><span>Fusion 360</span><span>Blender</span><span>FDM Printing</span><span>Bambu Lab</span></div>
+          </div>
         </div>
       </div>
       <div class="digitize reveal-digitize">
