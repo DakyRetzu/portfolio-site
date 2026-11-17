@@ -2013,7 +2013,7 @@ function replay(){
   if(mode!=='done'||!cx||!ocx||!bcx||!acx)return;
   HERO.classList.remove('dt-first');
   if(!COARSE&&!grain.length)makeGrain();
-  window.scrollTo(0,0);
+  window.scrollTo({top:0,left:0,behavior:'instant'});
   if(!S||!S.ready){
     mode='loading';
     loadEl.classList.remove('off');
