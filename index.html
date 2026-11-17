@@ -747,18 +747,20 @@
   }
 
   /* ---------- stack (spec sheet) ---------- */
-  .spec-sheet{ border-top:1px solid var(--rule-strong); }
-  #stack .spec-sheet .grp{ grid-template-columns:minmax(120px, 29%) minmax(0, 1fr); gap:18px; }
-  #stack .spec-sheet .cat{ margin:3px 0 0; font-weight:500; line-height:1.5; }
-  #stack .stack-use{ margin:0 0 9px; color:var(--ink-dim); font-size:.92rem; line-height:1.5; }
-  #stack .spec-sheet .items{ gap:8px 18px; }
-  @media (max-width:700px){ #stack .spec-sheet .grp{ grid-template-columns:1fr; gap:9px; } }
-
-  .spec-sheet .grp{ border-bottom:1px solid var(--rule); padding:26px 0; display:grid; grid-template-columns:220px 1fr; gap:24px; }
-  @media (max-width:700px){ .spec-sheet .grp{ grid-template-columns:1fr; gap:12px; } }
-  .spec-sheet .grp .cat{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--red); }
-  .spec-sheet .grp .items{ display:flex; flex-wrap:wrap; gap:10px 28px; }
-  .spec-sheet .grp .items span{ font-family:'Archivo', sans-serif; font-weight:600; font-size:1rem; color:var(--ink-dim); }
+  .stack-panels{
+    display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+    border-top:1px solid var(--rule-strong);
+  }
+  .stack-panel{ min-width:0; padding:26px clamp(14px,3vw,38px) 30px 0; border-bottom:1px solid var(--rule-strong); }
+  .stack-panel:nth-child(even){ padding-left:clamp(14px,3vw,38px); border-left:1px solid var(--rule-strong); }
+  .stack-panel h3{ margin:0 0 8px; color:var(--ink); font:600 clamp(1.2rem,2.5vw,1.65rem)/1.25 Archivo,sans-serif; }
+  .stack-panel p{ margin:0 0 16px; color:var(--ink-dim); line-height:1.55; }
+  .stack-tools{ display:flex; flex-wrap:wrap; gap:7px; list-style:none; margin:0; padding:0; }
+  .stack-tools li{ padding:4px 8px; border:1px solid var(--rule-strong); color:var(--ink); font:400 .78rem/1.3 'IBM Plex Mono',monospace; }
+  @media (max-width:700px){
+    .stack-panels{ grid-template-columns:1fr; }
+    .stack-panel,.stack-panel:nth-child(even){ padding:20px 0; border-left:0; }
+  }
 
   /* ---------- contact ---------- */
   .contact{ padding-top:130px; padding-bottom:90px; }
@@ -1135,7 +1137,7 @@ nav.links a i{ font-style:normal; color:var(--red); font-size:9.5px; margin-righ
 .in-label b{ color:var(--red); font-weight:500; }
 
 /* ---------- plates: crop marks that grow on hover ---------- */
-.work-grid, .drone-card, .pilot-strip, .art-showcase, .spec-sheet, .digitize, .drawing{ position:relative; }
+.work-grid, .drone-card, .pilot-strip, .art-showcase, .digitize, .drawing{ position:relative; }
 .work-grid::before, .drone-card::before, .pilot-strip::before, .art-showcase::before, .digitize::before, .drawing::before,
 .work-grid::after, .drone-card::after, .pilot-strip::after, .art-showcase::after, .digitize::after, .drawing::after{
   content:""; position:absolute; width:14px; height:14px; z-index:4; pointer-events:none; transition:width .5s cubic-bezier(.2,.7,.2,1), height .5s cubic-bezier(.2,.7,.2,1);
@@ -1203,8 +1205,6 @@ nav.links a i{ font-style:normal; color:var(--red); font-size:9.5px; margin-righ
 }
 
 /* ---------- stack ---------- */
-.spec-sheet .grp .items span{ font-family:var(--display); font-weight:400; font-size:.78rem; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-dim); transition:color .25s ease; }
-.spec-sheet .grp .items span:hover{ color:var(--ink); }
 
 /* ---------- about me ---------- */
 .about-me .ch-head{ margin-bottom:24px; }
@@ -1681,41 +1681,50 @@ nav.links a i{ font-style:normal; color:var(--red); font-size:9.5px; margin-righ
       <h2 class="ch-h" data-glitch>What I <span class="hl">build</span> with.</h2>
     </div>
     <div class="accent-line reveal-line"></div>
-    <div class="digitize-row">
-      <div class="spec-sheet reveal">
-        <div class="grp">
-          <h3 class="cat">Software &amp; Backend</h3>
-          <div>
-            <p class="stack-use">APIs, databases and real-time systems.</p>
-            <div class="items"><span>Python</span><span>FastAPI</span><span>Flask</span><span>WebSockets</span><span>Supabase</span></div>
-          </div>
-        </div>
-        <div class="grp">
-          <h3 class="cat">AI &amp; Computer Vision</h3>
-          <div>
-            <p class="stack-use">Live object detection in Argus AI and issue retrieval in BugTrace.</p>
-            <div class="items"><span>YOLO</span><span>OpenCV</span><span>BM25</span></div>
-          </div>
-        </div>
-        <div class="grp">
-          <h3 class="cat">Web &amp; Interactive 3D</h3>
-          <div>
-            <p class="stack-use">Web applications, real-time collaboration and interactive 3D experiences.</p>
-            <div class="items"><span>React / Next.js</span><span>TypeScript</span><span>Tailwind CSS</span><span>Three.js / R3F</span><span>WebGL Shaders</span><span>GSAP / ScrollTrigger</span><span>Yjs</span></div>
-          </div>
-        </div>
-        <div class="grp">
-          <h3 class="cat">CAD &amp; Prototyping</h3>
-          <div>
-            <p class="stack-use">From CAD models to 3D-printed drone airframes.</p>
-            <div class="items"><span>Fusion 360</span><span>Blender</span><span>FDM Printing</span><span>Bambu Lab</span></div>
-          </div>
-        </div>
-      </div>
-      <div class="digitize reveal-digitize">
-        <div class="px-grid" aria-hidden="true"></div>
-        <div class="cap">FIG. 02 · <b>Toolchain</b>, digitized</div>
-      </div>
+    <div class="stack-panels">
+      <article class="stack-panel">
+        <h3>Software &amp; Backend</h3>
+        <p>APIs that stream live detections and tools that evaluate search results.</p>
+        <ul class="stack-tools">
+          <li>Python</li>
+          <li>FastAPI</li>
+          <li>Flask</li>
+          <li>WebSockets</li>
+          <li>Supabase</li>
+        </ul>
+      </article>
+      <article class="stack-panel">
+        <h3>Computer Vision &amp; Search</h3>
+        <p>Live object detection in Argus AI and GitHub issue retrieval in BugTrace.</p>
+        <ul class="stack-tools">
+          <li>YOLO</li>
+          <li>OpenCV</li>
+          <li>BM25</li>
+        </ul>
+      </article>
+      <article class="stack-panel">
+        <h3>Web &amp; Interactive 3D</h3>
+        <p>Collaborative web apps, 3D scenes in the browser, and scroll-driven motion.</p>
+        <ul class="stack-tools">
+          <li>React / Next.js</li>
+          <li>TypeScript</li>
+          <li>Tailwind CSS</li>
+          <li>Three.js / R3F</li>
+          <li>WebGL</li>
+          <li>GSAP</li>
+          <li>Yjs</li>
+        </ul>
+      </article>
+      <article class="stack-panel">
+        <h3>CAD &amp; Prototyping</h3>
+        <p>I model, print and assemble drone airframes, then take them into flight testing.</p>
+        <ul class="stack-tools">
+          <li>Fusion 360</li>
+          <li>Blender</li>
+          <li>Bambu Lab</li>
+          <li>FDM 3D Printing</li>
+        </ul>
+      </article>
     </div>
   </div>
 </section>
@@ -2979,7 +2988,7 @@ if(!cx||!ocx||!bcx||!acx){
     })(t0);
   }
   if(fine){
-    $$('.work-card h3, .spec-sheet .items span, nav.links a, .contact .row a, .art-cta, .about .cta-row a, .ftab').forEach(function(el){
+    $$('.work-card h3, nav.links a, .contact .row a, .art-cta, .about .cta-row a, .ftab').forEach(function(el){
       el.addEventListener('pointerenter', function(){ scramble(el); });
     });
   }
